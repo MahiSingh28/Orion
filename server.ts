@@ -102,172 +102,62 @@ function savePersistedInquiries() {
 // Calendar Utilities: RFC 5545 iCalendar (.ics) & Web Link Generators
 // -------------------------------------------------------------
 
-type TimeZoneInfo = {
-  label: string;
-  iana: string;
-};
-
-const TIMEZONE_MAP: Record<string, TimeZoneInfo> = {
-  IST: { label: "IST", iana: "Asia/Kolkata" },
-  EST: { label: "EST", iana: "America/New_York" },
-  EDT: { label: "EDT", iana: "America/New_York" },
-  PST: { label: "PST", iana: "America/Los_Angeles" },
-  PDT: { label: "PDT", iana: "America/Los_Angeles" },
-  CST: { label: "CST", iana: "America/Chicago" },
-  CDT: { label: "CDT", iana: "America/Chicago" },
-  MST: { label: "MST", iana: "America/Denver" },
-  MDT: { label: "MDT", iana: "America/Denver" },
-  GMT: { label: "GMT", iana: "Etc/GMT" },
-  UTC: { label: "UTC", iana: "UTC" },
-};
-
-function resolveTimeZone(value?: string): TimeZoneInfo {
-  const raw = String(value || "IST").trim();
-  if (TIMEZONE_MAP[raw]) return TIMEZONE_MAP[raw];
-
-  // Also accept a real IANA timezone sent by the frontend.
-  try {
-    new Intl.DateTimeFormat("en-US", { timeZone: raw }).format();
-    return { label: raw, iana: raw };
-  } catch {
-    return TIMEZONE_MAP.IST;
-  }
-}
-
-function getDatePartsInTimeZone(date: Date, timeZone: string) {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hourCycle: "h23",
-  }).formatToParts(date);
-
-  const values: Record<string, number> = {};
-  for (const part of parts) {
-    if (part.type !== "literal") values[part.type] = Number(part.value);
-  }
-  return values;
-}
-
-/**
- * Converts a wall-clock date/time in an IANA timezone into a real UTC Date.
- * This avoids relying on the Render/server machine timezone.
- */
-function zonedDateTimeToUtc(
-  year: number,
-  month: number,
-  day: number,
-  hours: number,
-  minutes: number,
-  timeZone: string
-): Date {
-  let utcGuess = Date.UTC(year, month - 1, day, hours, minutes, 0);
-
-  // Two passes are enough to converge for normal DST transitions.
-  for (let i = 0; i < 3; i++) {
-    const actual = getDatePartsInTimeZone(new Date(utcGuess), timeZone);
-    const actualAsUtc = Date.UTC(
-      actual.year,
-      actual.month - 1,
-      actual.day,
-      actual.hour,
-      actual.minute,
-      actual.second
-    );
-    const desiredAsUtc = Date.UTC(year, month - 1, day, hours, minutes, 0);
-    utcGuess += desiredAsUtc - actualAsUtc;
-  }
-
-  return new Date(utcGuess);
-}
-
-function parseTimeString(timeStr: string): { hours: number; minutes: number } {
-  const match = String(timeStr || "").trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
-  if (!match) return { hours: 14, minutes: 0 };
-
-  let hours = Number(match[1]);
-  const minutes = Number(match[2]);
-  const period = match[3]?.toLowerCase();
-
-  if (period === "pm" && hours < 12) hours += 12;
-  if (period === "am" && hours === 12) hours = 0;
-
-  if (hours > 23 || minutes > 59) return { hours: 14, minutes: 0 };
-  return { hours, minutes };
-}
-
-function parseSubmissionDateTime(submission: ContactSubmission): {
-  start: Date;
-  end: Date;
-  timeZone: string;
-} {
+function parseSubmissionDateTime(submission: ContactSubmission): { start: Date; end: Date } {
   const now = new Date();
-  const timeZone = resolveTimeZone(submission.timezone).iana;
-  const dateStr = String(submission.preferredDate || "").trim();
-  const timeStr = String(submission.preferredTime || "02:00 PM").trim();
-  const durationStr = String(submission.callDuration || "30 Mins");
+  let baseDate = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000); // 2 days default in future
+
+  // Try parsing preferredDate
+  const dateStr = submission.preferredDate || "";
+  const timeStr = submission.preferredTime || "02:00 PM";
+  const durationStr = submission.callDuration || "30 Mins";
 
   let durationMinutes = 30;
   if (durationStr.includes("15")) durationMinutes = 15;
   else if (durationStr.includes("45")) durationMinutes = 45;
   else if (durationStr.includes("60") || durationStr.includes("1 Hour")) durationMinutes = 60;
 
-  let year: number;
-  let month: number;
-  let day: number;
-
-  const isoMatch = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-
+  // Match ISO date YYYY-MM-DD if present
+  const isoMatch = dateStr.match(/(\d{4})-(\d{2})-(\d{2})/);
   if (isoMatch) {
-    year = Number(isoMatch[1]);
-    month = Number(isoMatch[2]);
-    day = Number(isoMatch[3]);
+    baseDate = new Date(parseInt(isoMatch[1]), parseInt(isoMatch[2]) - 1, parseInt(isoMatch[3]));
   } else {
+    // Match "Aug 18" or "18 Aug" or "Tue, Aug 18"
     const months: Record<string, number> = {
-      jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6,
-      jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12,
+      jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5,
+      jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11
     };
-
-    const monthMatch = dateStr.toLowerCase().match(
-      /(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/
-    );
+    const monthMatch = dateStr.toLowerCase().match(/(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/);
     const dayMatch = dateStr.match(/\b([0-2]?[0-9]|3[01])\b/);
-
     if (monthMatch && dayMatch) {
-      year = now.getFullYear();
-      month = months[monthMatch[1]];
-      day = Number(dayMatch[1]);
-
-      // Interpret human-readable dates in the requested timezone.
-      const candidate = zonedDateTimeToUtc(year, month, day, 23, 59, timeZone);
-      if (candidate.getTime() < now.getTime()) year += 1;
-    } else {
-      // Safe fallback: two days ahead in the requested timezone.
-      const future = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
-      const parts = getDatePartsInTimeZone(future, timeZone);
-      year = parts.year;
-      month = parts.month;
-      day = parts.day;
+      const currentYear = now.getFullYear();
+      baseDate = new Date(currentYear, months[monthMatch[1]], parseInt(dayMatch[1], 10));
+      // If date is in past, rollover to next year
+      if (baseDate.getTime() < now.getTime() - 24 * 60 * 60 * 1000) {
+        baseDate.setFullYear(currentYear + 1);
+      }
     }
   }
 
-  const { hours, minutes } = parseTimeString(timeStr);
-  const start = zonedDateTimeToUtc(year, month, day, hours, minutes, timeZone);
-  const end = new Date(start.getTime() + durationMinutes * 60 * 1000);
+  // Parse time "02:00 PM" or "14:00"
+  let hours = 14;
+  let minutes = 0;
+  const timeMatch = timeStr.match(/(\d{1,2}):(\d{2})\s*(am|pm)?/i);
+  if (timeMatch) {
+    hours = parseInt(timeMatch[1], 10);
+    minutes = parseInt(timeMatch[2], 10);
+    const ampm = timeMatch[3]?.toLowerCase();
+    if (ampm === "pm" && hours < 12) hours += 12;
+    if (ampm === "am" && hours === 12) hours = 0;
+  }
 
-  return { start, end, timeZone };
+  baseDate.setHours(hours, minutes, 0, 0);
+  const endDate = new Date(baseDate.getTime() + durationMinutes * 60 * 1000);
+
+  return { start: baseDate, end: endDate };
 }
 
 function formatIcsTimestamp(d: Date): string {
   return d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
-}
-
-function getCalendarMeetUrl(submission: ContactSubmission): string {
-  return submission.meetLink || "Google Meet link will be provided after confirmation.";
 }
 
 // Generate RFC 5545 compliant .ics string
@@ -276,7 +166,7 @@ function generateIcsCalendar(submission: ContactSubmission): string {
   const dtStamp = formatIcsTimestamp(new Date());
   const dtStart = formatIcsTimestamp(start);
   const dtEnd = formatIcsTimestamp(end);
-  const meetUrl = getCalendarMeetUrl(submission);
+  const meetUrl = submission.meetLink || `https://meet.google.com/orion-${submission.id.toLowerCase()}`;
   const adminEmail = process.env.GMAIL_USER || "startwithorion@gmail.com";
 
   const summary = `Orion Discovery Call: ${submission.name} × Orion Tech`;
@@ -287,7 +177,6 @@ function generateIcsCalendar(submission: ContactSubmission): string {
     `Timeline: ${submission.timeline || "3 - 4 Weeks"}`,
     `Video Meeting Room: ${meetUrl}`,
     `Inquiry ID: ${submission.id}`,
-    `Requested timezone: ${resolveTimeZone(submission.timezone).label}`,
   ].join("\\n");
 
   return [
@@ -304,8 +193,8 @@ function generateIcsCalendar(submission: ContactSubmission): string {
     `SUMMARY:${summary}`,
     `DESCRIPTION:${description}`,
     `LOCATION:${meetUrl}`,
-    "STATUS:CONFIRMED",
-    "SEQUENCE:0",
+    `STATUS:CONFIRMED`,
+    `SEQUENCE:0`,
     `ORGANIZER;CN=Orion Architecture:mailto:${adminEmail}`,
     `ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;CN=${submission.name}:mailto:${submission.email}`,
     "TRANSP:OPAQUE",
@@ -316,34 +205,32 @@ function generateIcsCalendar(submission: ContactSubmission): string {
 
 function generateGoogleCalendarUrl(submission: ContactSubmission): string {
   const { start, end } = parseSubmissionDateTime(submission);
-  const dtStart = formatIcsTimestamp(start).replace(/Z$/, "");
-  const dtEnd = formatIcsTimestamp(end).replace(/Z$/, "");
-  const meetUrl = getCalendarMeetUrl(submission);
+  const dtStart = formatIcsTimestamp(start);
+  const dtEnd = formatIcsTimestamp(end);
+  const meetUrl = submission.meetLink || `https://meet.google.com/orion-${submission.id.toLowerCase()}`;
   const title = encodeURIComponent(`Orion Discovery Call: ${submission.name} × Orion Tech`);
   const details = encodeURIComponent(
     `Technical Discovery Call with ${submission.name} (${submission.email}).\n` +
     `Project: ${submission.subject}\n` +
-    `Budget: ${submission.budget || "Not specified"}\n` +
-    `Timeline: ${submission.timeline || "Not specified"}\n` +
+    `Budget: ${submission.budget}\n` +
+    `Timeline: ${submission.timeline}\n` +
     `Google Meet: ${meetUrl}\n` +
     `Inquiry ID: ${submission.id}`
   );
   const location = encodeURIComponent(meetUrl);
 
-  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dtStart}/${dtEnd}&ctz=${encodeURIComponent(
-    resolveTimeZone(submission.timezone).iana
-  )}&details=${details}&location=${location}&add=startwithorion@gmail.com`;
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dtStart}/${dtEnd}&details=${details}&location=${location}&add=startwithorion@gmail.com`;
 }
 
 function generateOutlookCalendarUrl(submission: ContactSubmission): string {
   const { start, end } = parseSubmissionDateTime(submission);
-  const meetUrl = getCalendarMeetUrl(submission);
+  const meetUrl = submission.meetLink || `https://meet.google.com/orion-${submission.id.toLowerCase()}`;
   const title = encodeURIComponent(`Orion Discovery Call: ${submission.name} × Orion Tech`);
   const body = encodeURIComponent(
     `Technical Discovery Call with ${submission.name} (${submission.email}).\n` +
     `Project: ${submission.subject}\n` +
-    `Budget: ${submission.budget || "Not specified"}\n` +
-    `Timeline: ${submission.timeline || "Not specified"}\n` +
+    `Budget: ${submission.budget}\n` +
+    `Timeline: ${submission.timeline}\n` +
     `Google Meet: ${meetUrl}`
   );
   const location = encodeURIComponent(meetUrl);
@@ -352,29 +239,63 @@ function generateOutlookCalendarUrl(submission: ContactSubmission): string {
 }
 
 // -------------------------------------------------------------
-// Nodemailer Transporter Helper
+// Brevo HTTP Email Helper
 // -------------------------------------------------------------
-function getMailTransporter() {
-  const user = process.env.GMAIL_USER || "startwithorion@gmail.com";
-  const pass = process.env.GMAIL_APP_PASSWORD || process.env.GMAIL_PASS;
+const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
 
-  if (!pass) {
-    console.log(`[MAILER SIMULATION] GMAIL_APP_PASSWORD is not set. Real emails simulated in sandbox.`);
-    return null;
-  }
+function getBrevoConfig() {
+  const apiKey = process.env.BREVO_API_KEY || "";
+  const senderEmail =
+    process.env.BREVO_SENDER_EMAIL ||
+    process.env.GMAIL_USER ||
+    "startwithorion@gmail.com";
+  const senderName = process.env.BREVO_SENDER_NAME || "Orion";
 
-  return nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user,
-      pass: pass.replace(/\s+/g, ""),
-    },
-  });
+  return { apiKey, senderEmail, senderName };
 }
 
-// Send Real Email Notification to Admin
-async function sendAdminNotificationEmail(submission: ContactSubmission, hostUrl: string) {
-  const transporter = getMailTransporter();
+async function sendBrevoEmail(payload: Record<string, unknown>): Promise<boolean> {
+  const { apiKey } = getBrevoConfig();
+
+  if (!apiKey) {
+    console.error("[BREVO ERROR] BREVO_API_KEY is not configured.");
+    return false;
+  }
+
+  try {
+    const response = await fetch(BREVO_API_URL, {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        "api-key": apiKey,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const responseText = await response.text();
+
+    if (!response.ok) {
+      console.error(
+        `[BREVO ERROR] HTTP ${response.status}: ${responseText}`
+      );
+      return false;
+    }
+
+    console.log(`[BREVO EMAIL SENT] HTTP ${response.status}`);
+    return true;
+  } catch (error) {
+    console.error("[BREVO NETWORK ERROR]", error);
+    return false;
+  }
+}
+
+// Send notification to Admin through Brevo's HTTPS API.
+async function sendAdminNotificationEmail(
+  submission: ContactSubmission,
+  hostUrl: string
+) {
+  const { senderEmail, senderName } = getBrevoConfig();
   const adminEmail = process.env.GMAIL_USER || "startwithorion@gmail.com";
   const confirmUrl = `${hostUrl}/api/inquiries/${submission.id}/confirm`;
 
@@ -411,81 +332,43 @@ async function sendAdminNotificationEmail(submission: ContactSubmission, hostUrl
           </div>
           <div class="content">
             <span class="badge">⏳ Action Required: Approval Pending</span>
-
             <div class="card">
-              <div class="row">
-                <span class="label">Client Name:</span>
-                <span class="value">${submission.name}</span>
-              </div>
-              <div class="row">
-                <span class="label">Client Email:</span>
-                <span class="value"><a href="mailto:${submission.email}" style="color: #60A5FA;">${submission.email}</a></span>
-              </div>
-              ${submission.company ? `
-              <div class="row">
-                <span class="label">Company / Brand:</span>
-                <span class="value">${submission.company}</span>
-              </div>` : ''}
+              <div class="row"><span class="label">Client Name:</span><span class="value">${submission.name}</span></div>
+              <div class="row"><span class="label">Client Email:</span><span class="value"><a href="mailto:${submission.email}" style="color: #60A5FA;">${submission.email}</a></span></div>
+              ${submission.company ? `<div class="row"><span class="label">Company / Brand:</span><span class="value">${submission.company}</span></div>` : ''}
               <div class="row" style="border-top: 1px solid #1E293B; padding-top: 12px; margin-top: 12px;">
                 <span class="label">Requested Meeting:</span>
                 <span class="value highlight">${submission.preferredDate} at ${submission.preferredTime} ${submission.timezone} (${submission.callDuration})</span>
               </div>
-              <div class="row">
-                <span class="label">Target Budget:</span>
-                <span class="value" style="color: #34D399;">${submission.budget}</span>
-              </div>
-              <div class="row">
-                <span class="label">Target Timeline:</span>
-                <span class="value">${submission.timeline}</span>
-              </div>
+              <div class="row"><span class="label">Target Budget:</span><span class="value" style="color: #34D399;">${submission.budget}</span></div>
+              <div class="row"><span class="label">Target Timeline:</span><span class="value">${submission.timeline}</span></div>
             </div>
-
             <p style="font-size: 12px; color: #94A3B8; margin-bottom: 6px; font-weight: bold; text-transform: uppercase;">Project Subject & Brief:</p>
             <div class="message-box">
               <strong style="color: #FFFFFF; display: block; margin-bottom: 6px;">${submission.subject}</strong>
               ${submission.message.replace(/\n/g, '<br/>')}
             </div>
-
-            <a href="${confirmUrl}" class="btn-confirm">
-              ✅ 1-CLICK CONFIRM CALL & DISPATCH CALENDAR INVITE
-            </a>
-
-            <a href="mailto:${submission.email}?subject=Re: Technical Discovery Call - ${encodeURIComponent(submission.subject)}" class="btn-reply">
-              ✉️ Reply Directly to Client (${submission.email})
-            </a>
+            <a href="${confirmUrl}" class="btn-confirm">✅ 1-CLICK CONFIRM CALL & DISPATCH CALENDAR INVITE</a>
+            <a href="mailto:${submission.email}?subject=Re: Technical Discovery Call - ${encodeURIComponent(submission.subject)}" class="btn-reply">✉️ Reply Directly to Client (${submission.email})</a>
           </div>
-          <div class="footer">
-            Automated notification sent to ${adminEmail} from your Portfolio Contact & Booking System.
-          </div>
+          <div class="footer">Automated notification sent to ${adminEmail} from your Portfolio Contact & Booking System.</div>
         </div>
       </body>
     </html>
   `;
 
-  if (transporter) {
-    try {
-      await transporter.sendMail({
-        from: `"Orion Discovery Requests" <${adminEmail}>`,
-        to: adminEmail,
-        replyTo: submission.email,
-        subject: `🚨 Discovery Call Request: ${submission.name} (${submission.preferredDate} at ${submission.preferredTime}) [${submission.budget}]`,
-        html: htmlContent,
-      });
-      console.log(`[EMAIL DISPATCHED] Real notification sent to ${adminEmail} for inquiry ${submission.id}`);
-      return true;
-    } catch (mailError) {
-      console.error("[EMAIL DISPATCH ERROR]", mailError);
-      return false;
-    }
-  } else {
-    console.log(`[EMAIL SIMULATED] Notification generated for ${adminEmail}. Confirm URL: ${confirmUrl}`);
-    return false;
-  }
+  return sendBrevoEmail({
+    sender: { name: senderName, email: senderEmail },
+    to: [{ email: adminEmail }],
+    replyTo: { email: submission.email, name: submission.name },
+    subject: `🚨 Discovery Call Request: ${submission.name} (${submission.preferredDate} at ${submission.preferredTime}) [${submission.budget}]`,
+    htmlContent,
+  });
 }
 
-// Send Real Confirmation Email to Client with Attached .ics and Google Calendar Link
+// Send confirmation email to Client through Brevo, including the .ics invite.
 async function sendClientConfirmationEmail(submission: ContactSubmission) {
-  const transporter = getMailTransporter();
+  const { senderEmail, senderName } = getBrevoConfig();
   const adminEmail = process.env.GMAIL_USER || "startwithorion@gmail.com";
   const meetUrl = submission.meetLink || `https://meet.google.com/orion-${submission.id.toLowerCase()}`;
   const gcalUrl = generateGoogleCalendarUrl(submission);
@@ -499,7 +382,7 @@ async function sendClientConfirmationEmail(submission: ContactSubmission) {
         <meta charset="utf-8">
         <style>
           body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #0B0F19; color: #E2E8F0; margin: 0; padding: 24px; }
-          .container { max-width: 600px; margin: 0 auto; background-color: #111827; border: 1px solid #10B981; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+          .container { max-width: 600px; margin: 0 auto; background-color: #111827; border: 1px solid #10B981; border-radius: 16px; overflow: hidden; }
           .header { background: linear-gradient(135deg, #059669 0%, #064E3B 100%); padding: 24px 32px; color: #FFFFFF; }
           .header h1 { margin: 0 0 6px 0; font-size: 20px; }
           .content { padding: 32px; }
@@ -521,62 +404,46 @@ async function sendClientConfirmationEmail(submission: ContactSubmission) {
             <span class="badge">MEETING CONFIRMED</span>
             <p>Hi <strong>${submission.name}</strong>,</p>
             <p>Your technical discovery call has been confirmed. Attached to this email is your official <strong>.ics calendar invite</strong>.</p>
-            
             <div class="card">
               <p style="margin: 0 0 8px 0; color: #94A3B8; font-size: 12px; font-weight: bold;">MEETING SUMMARY</p>
               <p style="margin: 0 0 6px 0; font-size: 16px; color: #34D399; font-weight: bold;">📅 ${submission.preferredDate} at ${submission.preferredTime} ${submission.timezone}</p>
               <p style="margin: 0 0 4px 0; font-size: 13px; color: #94A3B8;">Duration: ${submission.callDuration || "30 Mins"}</p>
               <p style="margin: 0; font-size: 13px; color: #CBD5E1;">Project Focus: <strong>${submission.subject}</strong></p>
             </div>
-
             <div class="meet-box">
               <div style="font-size: 12px; color: #A7F3D0; font-weight: bold; margin-bottom: 4px;">OFFICIAL GOOGLE MEET ROOM</div>
               <a href="${meetUrl}" class="meet-link" target="_blank">📹 JOIN GOOGLE MEET VIDEO ROOM</a>
               <div style="font-size: 11px; color: #D1FAE5; margin-top: 6px; word-break: break-all;">${meetUrl}</div>
             </div>
-
             <div style="text-align: center; margin: 18px 0;">
               <a href="${gcalUrl}" class="btn-cal" target="_blank">📅 Add to Google Calendar</a>
               <a href="${outlookUrl}" class="btn-cal" target="_blank">🗓️ Add to Outlook / Office 365</a>
             </div>
-
             <p style="font-size: 12px; color: #64748B; margin-top: 24px; text-align: center;">
               Need to reschedule or add colleagues? Simply reply to this email or contact <a href="mailto:${adminEmail}" style="color: #60A5FA;">${adminEmail}</a>.
             </p>
           </div>
-          <div class="footer">
-            Orion Architecture • High-Performance Web Applications & Distributed Systems
-          </div>
+          <div class="footer">Orion Architecture • High-Performance Web Applications & Distributed Systems</div>
         </div>
       </body>
     </html>
   `;
 
-  if (transporter) {
-    try {
-      await transporter.sendMail({
-        from: `"Orion Architecture" <${adminEmail}>`,
-        to: submission.email,
-        replyTo: adminEmail,
-        subject: `✓ Confirmed: Technical Discovery Call with Orion Architecture (${submission.preferredDate})`,
-        html: clientHtml,
-        icalEvent: {
-          filename: `discovery-call-${submission.id}.ics`,
-          method: "REQUEST",
-          content: icsContent,
-        },
-      });
-      console.log(`[CLIENT EMAIL DISPATCHED] Confirmation + .ics invite sent to ${submission.email}`);
-      return true;
-    } catch (err) {
-      console.error("[CLIENT EMAIL ERROR]", err);
-      return false;
-    }
-  } else {
-    console.log(`[CLIENT EMAIL SIMULATED] Confirmation prepared for ${submission.email} with Meet link ${meetUrl}`);
-    return false;
-  }
+  return sendBrevoEmail({
+    sender: { name: senderName, email: senderEmail },
+    to: [{ email: submission.email, name: submission.name }],
+    replyTo: { email: adminEmail, name: "Orion" },
+    subject: `✓ Confirmed: Technical Discovery Call with Orion Architecture (${submission.preferredDate})`,
+    htmlContent: clientHtml,
+    attachment: [
+      {
+        name: `discovery-call-${submission.id}.ics`,
+        content: Buffer.from(icsContent, "utf-8").toString("base64"),
+      },
+    ],
+  });
 }
+
 // -------------------------------------------------------------
 // Create Real Google Calendar Event + Google Meet
 // -------------------------------------------------------------
@@ -601,7 +468,7 @@ async function createGoogleCalendarEvent(
     auth: oauth2Client,
   });
 
-  const { start, end, timeZone } = parseSubmissionDateTime(submission);
+  const { start, end } = parseSubmissionDateTime(submission);
 
   const response = await calendar.events.insert({
     calendarId: "primary",
@@ -624,12 +491,10 @@ async function createGoogleCalendarEvent(
 
       start: {
         dateTime: start.toISOString(),
-        timeZone,
       },
 
       end: {
         dateTime: end.toISOString(),
-        timeZone,
       },
 
       attendees: [
@@ -720,6 +585,7 @@ app.get("/auth/google/callback", async (req, res) => {
     // TEMPORARY: for initial setup/testing only.
     // We will move this to secure persistent storage for production.
     process.env.GOOGLE_REFRESH_TOKEN = tokens.refresh_token;
+    console.log("[GOOGLE REFRESH TOKEN]", tokens.refresh_token);
 
 
     return res.send(`
@@ -767,9 +633,8 @@ app.get("/api/health", (_req, res) => {
 });
 
 // Available Calendar Slots
-app.get("/api/calendar/available-slots", (req, res) => {
-  const requested = String(req.query.timezone || "IST");
-  const zone = resolveTimeZone(requested);
+app.get("/api/calendar/available-slots", (_req, res) => {
+  const timeZone = "Asia/Kolkata";
   const now = new Date();
 
   const slotsByDay = [
@@ -779,53 +644,49 @@ app.get("/api/calendar/available-slots", (req, res) => {
     ["11:00 AM", "02:00 PM", "03:30 PM", "06:00 PM"],
   ];
 
-  const dateFormatter = new Intl.DateTimeFormat("en-IN", {
-    timeZone: zone.iana,
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  });
-
-  const todayParts = getDatePartsInTimeZone(now, zone.iana);
-  const days: Array<{
-    date: string;
-    isoDate: string;
-    slots: string[];
-  }> = [];
+  const days = [];
 
   for (let i = 0; i < 14; i++) {
-    // Build the calendar date in the requested timezone, never in Render's local timezone.
-    const midnightUtc = zonedDateTimeToUtc(
-      todayParts.year,
-      todayParts.month,
-      todayParts.day + i,
-      0,
-      0,
-      zone.iana
+    const date = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() + i
     );
 
-    const parts = getDatePartsInTimeZone(midnightUtc, zone.iana);
-    const isoDate = [
-      String(parts.year).padStart(4, "0"),
-      String(parts.month).padStart(2, "0"),
-      String(parts.day).padStart(2, "0"),
-    ].join("-");
+    const isoDate = date.toISOString().split("T")[0];
+
+    const formattedDate = date.toLocaleDateString("en-IN", {
+      timeZone,
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    });
 
     let slots = [...slotsByDay[i % slotsByDay.length]];
 
-    // Remove already-passed slots for today in the user's selected timezone.
+    // On today's date, remove slots that have already passed.
     if (i === 0) {
-      const current = getDatePartsInTimeZone(now, zone.iana);
-      const currentMinutes = current.hour * 60 + current.minute;
+      const currentMinutes =
+        now.getHours() * 60 + now.getMinutes();
 
       slots = slots.filter((slot) => {
-        const { hours, minutes } = parseTimeString(slot);
+        const match = slot.match(/(\d+):(\d+)\s*(AM|PM)/i);
+
+        if (!match) return false;
+
+        let hours = parseInt(match[1], 10);
+        const minutes = parseInt(match[2], 10);
+        const period = match[3].toUpperCase();
+
+        if (period === "PM" && hours !== 12) hours += 12;
+        if (period === "AM" && hours === 12) hours = 0;
+
         return hours * 60 + minutes > currentMinutes;
       });
     }
 
     days.push({
-      date: dateFormatter.format(midnightUtc),
+      date: formattedDate,
       isoDate,
       slots,
     });
@@ -833,8 +694,8 @@ app.get("/api/calendar/available-slots", (req, res) => {
 
   res.json({
     success: true,
-    timezone: zone.label,
-    timeZone: zone.iana,
+    timezone: "IST",
+    timeZone,
     days,
   });
 });
@@ -1065,10 +926,10 @@ app.post("/api/contact", async (req, res) => {
       company: company ? String(company).trim() : "",
       budget: budget ? String(budget).trim() : "$2,500 - $5,000",
       timeline: timeline ? String(timeline).trim() : "3 - 4 Weeks",
-      preferredDate: preferredDate || "",
+      preferredDate: preferredDate || "Tue, Aug 18",
       preferredTime: preferredTime || "02:00 PM",
       callDuration: callDuration || "30 Mins",
-      timezone: timezone || "IST",
+      timezone: timezone || "EST",
       status: "pending_approval",
       createdAt: new Date().toISOString(),
       proposalSummary,
