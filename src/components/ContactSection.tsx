@@ -524,7 +524,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                     {/* Day Selection Tabs */}
                     {!isCalendarLoading && !calendarError && availableSchedule.length > 0 && (
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
-                      {availableSchedule.map((day) => (
+                      {availableSchedule.slice(0, 4).map((day) => (
                         <button
                           key={day.isoDate}
                           type="button"
@@ -660,7 +660,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
               {/* Approval Notice Note */}
               <div className="p-3 bg-[#FFFCF8] border border-[#C97872]/30 rounded-xl flex items-center gap-2.5 text-xs text-[#B06A64]">
                 <Clock className="w-4 h-4 text-[#C97872] shrink-0" />
-                <span>Your requested time is held for review. I’ll confirm it before sending the calendar invite.</span>
+                <span>Your requested time is held for review. We confirm it before sending the calendar invite.</span>
               </div>
 
             </div>

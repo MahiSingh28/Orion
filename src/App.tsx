@@ -191,7 +191,7 @@ export default function App() {
         onOpenContact={handleOpenContact}
       />
 
-      <main>
+       <main>
         <Hero
           onExploreWorks={() => scrollToSection('works')}
           onOpenEstimator={handleOpenEstimator}
@@ -205,16 +205,15 @@ export default function App() {
 
         {shouldLoadDeferredSections ? (
           <Suspense fallback={<DeferredFallback />}>
+            {/* Services first: users understand the offer before seeing the calculator. */}
+            <ServicesAndPricing onSelectPackage={handleSelectPackage} />
+
+            {/* Estimate second: users can price the project after seeing the packages. */}
             <ProjectEstimator
               onSendBriefToContact={handleSendBriefToContact}
             />
 
-            <ServicesAndPricing
-              onSelectPackage={handleSelectPackage}
-            />
-
             <WorkProcess />
-
             <ContactSection initialBrief={estimatorBrief} />
           </Suspense>
         ) : (
