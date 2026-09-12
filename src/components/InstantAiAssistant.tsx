@@ -71,7 +71,7 @@ export const InstantAiAssistant: React.FC = () => {
         ...prev,
         {
           sender: 'assistant',
-          text: 'We could not connect right now. You can still explore Our work or use the contact form to Tell Usabout your project.',
+          text: 'We could not connect right now. You can still explore Our work or use the contact form to Tell Us About your project.',
           time: new Date().toLocaleTimeString([], {
             hour: '2-digit',
             minute: '2-digit',

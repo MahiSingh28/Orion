@@ -882,7 +882,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 <div className="flex items-center justify-between border-b border-[#DED5CC] pb-4">
                   <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#706B65] uppercase">
                     <FileText className="w-4 h-4 text-[#C97872]" />
-                    <span>Tell UsAbout Your Project</span>
+                    <span>Tell Us About Your Project</span>
                   </div>
                   <div className="flex items-center gap-1.5 text-[11px] font-mono text-[#C97872] bg-[#FFFCF8] px-2.5 py-1 rounded-full border border-[#DED5CC]">
                     <ShieldCheck className="w-3.5 h-3.5 text-[#C97872]" />
@@ -1057,7 +1057,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-mono font-bold text-[#706B65] flex items-center gap-1.5">
                       <MessageSquare className="w-3.5 h-3.5 text-[#706B65]" />
-                      <span>Tell Usabout the project *</span>
+                      <span>Tell Us About the project *</span>
                     </label>
                     <div className="flex items-center gap-2">
                       <button
