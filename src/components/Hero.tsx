@@ -116,7 +116,7 @@ export const Hero: React.FC<HeroProps> = ({
                 onClick={onExploreWorks}
                 className="group relative overflow-hidden px-6 py-3.5 rounded-xl font-bold text-sm bg-[#C97872] text-white hover:bg-[#B06A64] transition-all duration-300 shadow-md shadow-[#C97872]/15 flex items-center gap-2 hover:-translate-y-1 hover:shadow-[0_14px_30px_rgba(201,120,114,0.22)] active:translate-y-0"
               >
-                <span>See My Work</span>
+                <span>See Our Work</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
 

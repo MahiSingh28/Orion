@@ -488,7 +488,7 @@ export const WorkProcess: React.FC = () => {
                 </div>
                 <p className="mt-4 max-w-4xl text-3xl font-black leading-tight tracking-[-0.04em] sm:text-5xl">
                   You should never have to wonder,
-                  <span className="text-[#C97872]"> “What’s happening with my project?”</span>
+                  <span className="text-[#C97872]"> “What’s happening with Our project?”</span>
                 </p>
               </div>
 

@@ -16,7 +16,7 @@ export const InstantAiAssistant: React.FC = () => {
   >([
     {
       sender: 'assistant',
-      text: 'Hi! I’m Orion’s project assistant. Ask me about my services, the kind of websites and web apps We build, or how to get started.',
+      text: 'Hi! I’m Orion’s project assistant. Ask me about Our services, the kind of websites and web apps We build, or how to get started.',
       time: 'Just now',
     },
   ]);
@@ -71,7 +71,7 @@ export const InstantAiAssistant: React.FC = () => {
         ...prev,
         {
           sender: 'assistant',
-          text: 'I couldn’t connect right now. You can still explore my work or use the contact form to tell me about your project.',
+          text: 'We could not connect right now. You can still explore Our work or use the contact form to tell me about your project.',
           time: new Date().toLocaleTimeString([], {
             hour: '2-digit',
             minute: '2-digit',

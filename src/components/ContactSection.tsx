@@ -1068,7 +1068,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                         title="Auto-format project brief"
                       >
                         <Zap className="w-3 h-3 text-[#C97872]" />
-                        <span>Improve my description</span>
+                        <span>Improve Our description</span>
                       </button>
                       <button
                         type="button"

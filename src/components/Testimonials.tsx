@@ -9,7 +9,7 @@ const ADDITIONAL_TESTIMONIALS = [
     role: 'Founder',
     company: 'Mehta & Co.',
     quote:
-      'The whole process felt simple and well organised. I could explain what I wanted in plain language, see the progress regularly, and the final website felt polished and easy for our customers to use.',
+      'The whole process felt simple and well organised. We could explain what I wanted in plain language, see the progress regularly, and the final website felt polished and easy for our customers to use.',
     rating: 5,
     platform: 'Direct Client',
     avatar: 'https://i.pravatar.cc/150?img=12',
