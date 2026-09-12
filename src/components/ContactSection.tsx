@@ -9,7 +9,6 @@ import {
   Check, 
   Sparkles, 
   MessageSquare, 
-  DollarSign, 
   Building2, 
   User,
   ShieldCheck,
@@ -24,7 +23,8 @@ import {
   CalendarDays,
   Edit3,
   Download,
-  ExternalLink
+  ExternalLink,
+  DollarSign
 } from 'lucide-react';
 
 interface ContactSectionProps {
@@ -49,6 +49,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
   // Calendar & custom meeting state
   // Slots are loaded from the backend so dates stay current in real time.
   const [availableSchedule, setAvailableSchedule] = useState<AvailableDay[]>([]);
+  const [isCalendarLoading, setIsCalendarLoading] = useState(true);
+  const [calendarError, setCalendarError] = useState<string>('');
   const [scheduleMode, setScheduleMode] = useState<'preset' | 'custom'>('preset');
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedTime, setSelectedTime] = useState<string>('');
@@ -62,38 +64,67 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
 
   // Load live calendar slots from the backend. The backend provides IST dates/times.
   useEffect(() => {
+    let cancelled = false;
+
     const loadAvailableSlots = async () => {
+      setIsCalendarLoading(true);
+      setCalendarError('');
+
       try {
-        const response = await fetch('/api/calendar/available-slots');
-        if (!response.ok) throw new Error(`Calendar request failed: ${response.status}`);
+        const response = await fetch('/api/calendar/available-slots', {
+          cache: 'no-store',
+          headers: { Accept: 'application/json' },
+        });
 
         const data = await response.json();
 
-        if (data.success && Array.isArray(data.days)) {
-          const days: AvailableDay[] = data.days;
-          setAvailableSchedule(days);
+        if (!response.ok || !data.success || !Array.isArray(data.days)) {
+          throw new Error(data?.message || `Calendar request failed: ${response.status}`);
+        }
 
-          if (days.length > 0) {
-            const firstDay = days[0];
-            setSelectedDate(firstDay.date);
-            setSelectedTime(firstDay.slots?.[0] || '');
-            setCustomDateInput(firstDay.isoDate);
-          }
+        const days: AvailableDay[] = data.days.filter(
+          (day: AvailableDay) => day && day.isoDate && Array.isArray(day.slots)
+        );
+
+        if (cancelled) return;
+
+        setAvailableSchedule(days);
+
+        if (days.length > 0) {
+          const firstDay = days[0];
+          setSelectedDate(firstDay.isoDate);
+          setSelectedTime(firstDay.slots?.[0] || '');
+          setCustomDateInput(firstDay.isoDate);
+        } else {
+          setSelectedDate('');
+          setSelectedTime('');
+          setCalendarError('No appointment slots are currently available.');
         }
       } catch (error) {
+        if (cancelled) return;
         console.error('Failed to load live calendar slots:', error);
+        setAvailableSchedule([]);
+        setSelectedDate('');
+        setSelectedTime('');
+        setCalendarError('Calendar availability could not be loaded. Please try again.');
+      } finally {
+        if (!cancelled) setIsCalendarLoading(false);
       }
     };
 
     loadAvailableSlots();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    subject: 'Web App Sprint Inquiry',
+    subject: 'New Website or Web App Project',
     company: '',
-    budget: '$2,500 - $5,000',
+    budget: '₹8,000 - ₹28,000',
     timeline: '3 - 4 Weeks',
     message: '',
     website_hp: '', // Primary Honeypot trap (must stay empty)
@@ -276,7 +307,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
 
       setSubmissionReceipt({
         submissionId: data.submissionId || 'INQ-99012',
-        aiProposal: data.aiProposal || 'Technical Project Scope: Initial sprint evaluation ready. Architecture: React + Node.js / Express + Tailwind CSS with targeted 100/100 Core Web Vitals.',
+        aiProposal: data.aiProposal || 'Initial project assessment ready. We’ll review the scope, timeline, and technical approach together.',
         status: data.status || 'pending_approval',
         meetLink: data.submission?.meetLink || 'https://meet.google.com/orion-discovery',
         googleCalendarUrl: data.googleCalendarUrl,
@@ -355,28 +386,28 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
   };
 
   // Get slots for currently selected date
-  const currentDaySlots = availableSchedule.find((d) => d.date === selectedDate)?.slots || [];
+  const currentDaySlots = availableSchedule.find((d) => d.isoDate === selectedDate)?.slots || [];
   const minCustomDate = new Date().toISOString().split('T')[0];
 
   return (
-    <section id="contact" className="py-16 md:py-24 relative overflow-hidden bg-slate-950">
+    <section id="contact" className="py-16 md:py-24 relative overflow-hidden bg-[#F8F5F0]">
       
       {/* Accent glow background */}
-      <div className="absolute top-1/2 right-0 w-[400px] h-[400px] bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-1/2 right-0 w-[400px] h-[400px] bg-[#C97872]/5 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         
         {/* Section Header */}
         <div className="text-center space-y-3 max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-mono font-semibold">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#C97872]/10 text-[#C97872] border border-[#C97872]/30 text-xs font-mono font-semibold">
             <Send className="w-3.5 h-3.5" />
-            <span>START A PROJECT SPRINT</span>
+            <span>START A PROJECT</span>
           </div>
-          <h2 className="text-3xl sm:text-5xl font-black text-slate-100 tracking-tight">
-            Let's Engineer Your Web App
+          <h2 className="text-3xl sm:text-5xl font-black text-[#1F1D1B] tracking-tight">
+            Let's Build Your Website or Web App
           </h2>
-          <p className="text-slate-400 text-sm sm:text-base">
-            Select your preferred meeting window and submit project requirements. Requests are reviewed against availability before calendar invites are dispatched.
+          <p className="text-[#706B65] text-sm sm:text-base">
+            Tell me what you want to build, choose a convenient time, and I’ll get back to you with the next steps.
           </p>
         </div>
 
@@ -385,183 +416,191 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
           {/* Left Column: Direct Info & Calendar Booking Selector */}
           <div className="lg:col-span-5 space-y-6">
             
-            <div className="bg-slate-900 rounded-3xl p-6 border border-slate-800 space-y-6 shadow-xl">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div className="group bg-[#FFFCF8] rounded-2xl p-6 border border-[#DED5CC] space-y-6 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-[#C97872]/40">
+              <div className="flex items-center justify-between border-b border-[#DED5CC] pb-4">
                 <div>
-                  <h3 className="font-bold text-slate-100 text-base">Direct Developer Contact</h3>
-                  <p className="text-xs text-slate-400">Response time: &lt; 2 Hours (Mon-Sat)</p>
+                  <h3 className="font-bold text-[#1F1D1B] text-base">Talk Directly with Us</h3>
+                  <p className="text-xs text-[#706B65]">Usually reply within 2 hours, Mon–Sat</p>
                 </div>
-                <span className="w-3 h-3 rounded-full bg-emerald-400 animate-ping" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[#C97872] transition-transform duration-300 group-hover:scale-125" />
               </div>
 
               {/* Direct Email Card */}
-              <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800/80 space-y-2">
-                <span className="text-[10px] text-slate-500 font-mono uppercase tracking-wider">Primary Email</span>
+              <div className="group/email p-4 bg-[#F8F5F0] rounded-2xl border border-[#DED5CC]/80 space-y-2 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#C97872]/50">
+                <span className="text-[10px] text-[#706B65] font-mono uppercase tracking-wider">Primary Email</span>
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-200 font-mono text-sm font-semibold">startwithorion@gmail.com</span>
+                  <span className="text-[#1F1D1B] font-mono text-sm font-semibold">startwithorion@gmail.com</span>
                   <button
                     type="button"
                     onClick={handleCopyEmail}
-                    className="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800 text-xs flex items-center gap-1 transition-colors"
+                    className="p-1.5 rounded-lg bg-[#FFFCF8] hover:bg-[#DED5CC] text-[#706B65] hover:text-[#1F1D1B] border border-[#DED5CC] text-xs flex items-center gap-1 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-[#C97872]/20"
                   >
-                    {copiedEmail ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    {copiedEmail ? <Check className="w-3.5 h-3.5 text-[#C97872]" /> : <Copy className="w-3.5 h-3.5" />}
                   </button>
                 </div>
               </div>
 
               {/* Guarantees Box */}
-              <div className="space-y-3 pt-2 text-xs text-slate-300">
+              <div className="space-y-3 pt-2 text-xs text-[#706B65]">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>NDA Signed Before Code Access</span>
+                  <ShieldCheck className="w-4 h-4 text-[#C97872] shrink-0" />
+                  <span>Your project details stay private</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>100% Codebase Ownership Transfer</span>
+                  <CheckCircle2 className="w-4 h-4 text-[#C97872] shrink-0" />
+                  <span>You receive the complete source code</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-indigo-400 shrink-0" />
-                  <span>Daily Progress Video Walkthrough & Staging Links</span>
+                  <Clock className="w-4 h-4 text-[#C97872] shrink-0" />
+                  <span>Regular previews so you can see progress</span>
                 </div>
               </div>
 
-              {/* Meeting Window Scheduler & Customizer */}
-              <div className="pt-4 border-t border-slate-800 space-y-4">
+              {/* Preferred Meeting Scheduler & Customizer */}
+              <div className="pt-4 border-t border-[#DED5CC] space-y-4">
                 
                 {/* Header & Mode Switcher */}
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-bold text-slate-300 uppercase font-mono flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-indigo-400" />
-                    <span>Meeting Window</span>
+                  <span className="text-xs font-bold text-[#706B65] uppercase font-mono flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-[#C97872]" />
+                    <span>Preferred Meeting</span>
                   </span>
-                  
-                  {/* Timezone Switcher */}
-                  <div className="flex items-center gap-1 bg-slate-950 px-2 py-1 rounded-lg border border-slate-800 text-[10px] font-mono text-slate-400">
-                    <Globe className="w-3 h-3 text-slate-500" />
-                    <select
-                      value={selectedTimezone}
-                      onChange={(e) => setSelectedTimezone(e.target.value)}
-                      className="bg-transparent text-slate-300 focus:outline-none cursor-pointer"
-                    >
-                      <option value="EST" className="bg-slate-900">EST (UTC-5)</option>
-                      <option value="IST" className="bg-slate-900">IST (UTC+5:30)</option>
-                      <option value="PST" className="bg-slate-900">PST (UTC-8)</option>
-                      <option value="CST" className="bg-slate-900">CST (UTC-6)</option>
-                      <option value="GMT" className="bg-slate-900">GMT / BST (UTC+0)</option>
-                      <option value="CET" className="bg-slate-900">CET (UTC+1)</option>
-                      <option value="AEST" className="bg-slate-900">AEST (UTC+10)</option>
-                      <option value="SGT" className="bg-slate-900">SGT (UTC+8)</option>
-                    </select>
-                  </div>
-                </div>
+                  {/* Scheduling timezone — backend slots are served in IST */}
+                   <div className="flex items-center gap-1.5 bg-[#F8F5F0] px-2.5 py-1.5 rounded-lg border border-[#DED5CC] text-[10px] font-mono text-[#706B65]">
+                     <Globe className="w-3 h-3 text-[#C97872]" />
+                     <span className="font-semibold text-[#1F1D1B]">IST</span>
+                     <span>(UTC+5:30)</span>
+                   </div>
+                 </div>
 
-                {/* Mode Selector: Suggested Slots vs Custom Pick */}
-                <div className="grid grid-cols-2 p-1 bg-slate-950 rounded-xl border border-slate-800 text-xs font-mono">
+                 <p className="text-[10px] text-[#9B857B] -mt-2">Available times are shown in India Standard Time.</p>
+
+                 {/* Mode Selector: Suggested Times vs Custom Pick */}
+                 <div className="grid grid-cols-2 p-1 bg-[#F8F5F0] rounded-xl border border-[#DED5CC] text-xs font-mono">
                   <button
                     type="button"
                     onClick={() => setScheduleMode('preset')}
                     className={`py-1.5 px-2 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                       scheduleMode === 'preset'
-                        ? 'bg-indigo-600 text-white font-bold shadow'
-                        : 'text-slate-400 hover:text-slate-200'
+                        ? 'bg-[#C97872] text-white font-bold shadow'
+                        : 'text-[#706B65] hover:text-[#1F1D1B]'
                     }`}
                   >
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>Suggested Slots</span>
+                    <span>Suggested Times</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setScheduleMode('custom')}
                     className={`py-1.5 px-2 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                       scheduleMode === 'custom'
-                        ? 'bg-indigo-600 text-white font-bold shadow'
-                        : 'text-slate-400 hover:text-slate-200'
+                        ? 'bg-[#C97872] text-white font-bold shadow'
+                        : 'text-[#706B65] hover:text-[#1F1D1B]'
                     }`}
                   >
                     <Sliders className="w-3.5 h-3.5" />
-                    <span>Custom Date & Time</span>
+                    <span>Choose Date & Time</span>
                   </button>
                 </div>
 
                 {/* MODE 1: Preset Slots View */}
                 {scheduleMode === 'preset' ? (
                   <div className="space-y-3">
+                    {/* Live calendar state */}
+                    {isCalendarLoading ? (
+                      <div className="flex items-center justify-center gap-2 rounded-xl border border-[#DED5CC] bg-[#F8F5F0] px-4 py-5 text-xs font-mono text-[#706B65]">
+                        <RefreshCw className="w-4 h-4 animate-spin text-[#C97872]" />
+                        <span>Loading live availability…</span>
+                      </div>
+                    ) : calendarError ? (
+                      <div className="rounded-xl border border-[#B76E6A]/30 bg-[#FFFCF8] px-4 py-4 text-xs text-[#B06A64]">
+                        <div className="flex items-center gap-2 font-semibold">
+                          <AlertCircle className="w-4 h-4 shrink-0" />
+                          <span>{calendarError}</span>
+                        </div>
+                      </div>
+                    ) : null}
+
                     {/* Day Selection Tabs */}
+                    {!isCalendarLoading && !calendarError && availableSchedule.length > 0 && (
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                       {availableSchedule.map((day) => (
                         <button
-                          key={day.date}
+                          key={day.isoDate}
                           type="button"
                           onClick={() => {
-                            setSelectedDate(day.date);
-                            if (!day.slots.includes(selectedTime)) {
-                              setSelectedTime(day.slots[0]);
-                            }
+                            setSelectedDate(day.isoDate);
+                            setSelectedTime(day.slots[0] || '');
                           }}
                           className={`p-2 rounded-xl text-xs font-mono transition-all text-center border cursor-pointer ${
-                            selectedDate === day.date
-                              ? 'bg-indigo-950/90 text-indigo-300 border-indigo-500/80 font-bold shadow-sm'
-                              : 'bg-slate-950/60 text-slate-400 border-slate-800/80 hover:text-slate-200'
+                            selectedDate === day.isoDate
+                              ? 'bg-[#DED5CC] text-[#B06A64] border-[#C97872] font-bold shadow-sm'
+                              : 'bg-[#F8F5F0]/60 text-[#706B65] border-[#DED5CC]/80 hover:text-[#1F1D1B]'
                           }`}
                         >
                           {day.date}
                         </button>
                       ))}
                     </div>
+                    )}
 
                     {/* Time Slots Grid for Selected Day */}
                     <div>
-                      <label className="text-[11px] text-slate-400 font-mono block mb-2">Available Slots ({selectedTimezone}):</label>
+                      <label className="text-[11px] text-[#706B65] font-mono block mb-2">Available times ({selectedTimezone}):</label>
                       <div className="grid grid-cols-2 gap-2">
-                        {currentDaySlots.map((slot) => (
+                        {currentDaySlots.length === 0 ? (
+                          <div className="col-span-2 rounded-xl border border-[#DED5CC] bg-[#F8F5F0] px-3 py-3 text-xs text-[#706B65]">
+                            No available times for this date.
+                          </div>
+                        ) : currentDaySlots.map((slot) => (
                           <button
                             key={slot}
                             type="button"
                             onClick={() => setSelectedTime(slot)}
                             className={`p-2.5 rounded-xl text-xs font-mono transition-all flex items-center justify-between border cursor-pointer ${
                               selectedTime === slot
-                                ? 'bg-emerald-950/80 text-emerald-300 border-emerald-500 font-bold'
-                                : 'bg-slate-950/60 text-slate-400 border-slate-800/80 hover:text-slate-200'
+                                ? 'bg-[#FFFCF8] text-[#C97872] border-[#C97872] font-bold'
+                                : 'bg-[#F8F5F0]/60 text-[#706B65] border-[#DED5CC]/80 hover:text-[#1F1D1B]'
                             }`}
                           >
                             <span>{slot}</span>
-                            {selectedTime === slot && <Check className="w-3.5 h-3.5 text-emerald-400" />}
+                            {selectedTime === slot && <Check className="w-3.5 h-3.5 text-[#C97872]" />}
                           </button>
                         ))}
                       </div>
                     </div>
                   </div>
                 ) : (
-                  /* MODE 2: Custom Date & Time Picker */
-                  <div className="space-y-3 p-3.5 bg-slate-950/90 rounded-2xl border border-indigo-900/60">
+                  /* MODE 2: Choose Date & Time Picker */
+                  <div className="space-y-3 p-3.5 bg-[#F8F5F0]/90 rounded-2xl border border-[#DED5CC]">
                     
                     {/* Custom Date Input */}
                     <div className="space-y-1.5">
-                      <label className="text-[11px] text-slate-300 font-mono font-bold flex items-center gap-1.5">
-                        <CalendarDays className="w-3.5 h-3.5 text-indigo-400" />
-                        <span>Pick Custom Date:</span>
+                      <label className="text-[11px] text-[#706B65] font-mono font-bold flex items-center gap-1.5">
+                        <CalendarDays className="w-3.5 h-3.5 text-[#C97872]" />
+                        <span>Choose a date:</span>
                       </label>
                       <input
                         type="date"
                         min={minCustomDate}
                         value={customDateInput}
                         onChange={(e) => handleCustomDateChange(e.target.value)}
-                        className="w-full bg-slate-900 text-slate-200 text-xs px-3 py-2.5 rounded-xl border border-slate-800 focus:outline-none focus:border-indigo-500 font-mono cursor-pointer"
+                        className="w-full bg-[#FFFCF8] text-[#1F1D1B] text-xs px-3 py-2.5 rounded-xl border border-[#DED5CC] focus:outline-none focus:border-[#C97872] font-mono cursor-pointer"
                       />
                     </div>
 
                     {/* Custom Time Input & Quick Presets */}
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between">
-                        <label className="text-[11px] text-slate-300 font-mono font-bold flex items-center gap-1.5">
-                          <Clock className="w-3.5 h-3.5 text-emerald-400" />
-                          <span>Pick Exact Time ({selectedTimezone}):</span>
+                        <label className="text-[11px] text-[#706B65] font-mono font-bold flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5 text-[#C97872]" />
+                          <span>Choose a time ({selectedTimezone}):</span>
                         </label>
                         <input
                           type="time"
                           value={customTimeInput}
                           onChange={(e) => handleCustomTimeChange(e.target.value)}
-                          className="bg-slate-900 text-emerald-400 text-xs px-2 py-1 rounded-lg border border-slate-800 focus:outline-none font-mono font-bold cursor-pointer"
+                          className="bg-[#FFFCF8] text-[#C97872] text-xs px-2 py-1 rounded-lg border border-[#DED5CC] focus:outline-none font-mono font-bold cursor-pointer"
                         />
                       </div>
 
@@ -574,8 +613,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                             onClick={() => setSelectedTime(t)}
                             className={`py-1.5 px-2 rounded-lg text-[11px] font-mono transition-all text-center border cursor-pointer ${
                               selectedTime === t
-                                ? 'bg-emerald-950 text-emerald-300 border-emerald-500 font-bold'
-                                : 'bg-slate-900/80 text-slate-400 border-slate-800 hover:text-slate-200'
+                                ? 'bg-[#FFFCF8] text-[#C97872] border-[#C97872] font-bold'
+                                : 'bg-[#FFFCF8]/80 text-[#706B65] border-[#DED5CC] hover:text-[#1F1D1B]'
                             }`}
                           >
                             {t}
@@ -589,7 +628,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
 
                 {/* Call Duration Picker */}
                 <div className="space-y-1.5 pt-1">
-                  <label className="text-[11px] text-slate-400 font-mono block">Meeting Duration:</label>
+                  <label className="text-[11px] text-[#706B65] font-mono block">Call length:</label>
                   <div className="grid grid-cols-3 gap-1.5">
                     {['15 Mins', '30 Mins', '45 Mins'].map((dur) => (
                       <button
@@ -598,8 +637,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                         onClick={() => setCallDuration(dur)}
                         className={`py-1.5 rounded-lg text-xs font-mono transition-all text-center border cursor-pointer ${
                           callDuration === dur
-                            ? 'bg-slate-800 text-indigo-300 border-indigo-500 font-bold'
-                            : 'bg-slate-950/60 text-slate-400 border-slate-800 hover:text-slate-200'
+                            ? 'bg-[#DED5CC] text-[#B06A64] border-[#C97872] font-bold'
+                            : 'bg-[#F8F5F0]/60 text-[#706B65] border-[#DED5CC] hover:text-[#1F1D1B]'
                         }`}
                       >
                         {dur}
@@ -609,9 +648,9 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 </div>
 
                 {/* Selected Preference Live Badge */}
-                <div className="p-3 bg-slate-950 rounded-xl border border-slate-800/80 flex items-center justify-between text-xs font-mono">
-                  <span className="text-slate-400">Locked Preference:</span>
-                  <span className="text-emerald-400 font-bold text-right">
+                <div className="p-3 bg-[#F8F5F0] rounded-xl border border-[#DED5CC]/80 flex items-center justify-between text-xs font-mono">
+                  <span className="text-[#706B65]">Your selected time:</span>
+                  <span className="text-[#C97872] font-bold text-right">
                     {selectedDate}, {selectedTime} {selectedTimezone} ({callDuration})
                   </span>
                 </div>
@@ -619,9 +658,9 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
               </div>
 
               {/* Approval Notice Note */}
-              <div className="p-3 bg-indigo-950/30 border border-indigo-500/20 rounded-xl flex items-center gap-2.5 text-xs text-indigo-300">
-                <Clock className="w-4 h-4 text-indigo-400 shrink-0" />
-                <span>Requested custom slots are held pending schedule confirmation & calendar invite.</span>
+              <div className="p-3 bg-[#FFFCF8] border border-[#C97872]/30 rounded-xl flex items-center gap-2.5 text-xs text-[#B06A64]">
+                <Clock className="w-4 h-4 text-[#C97872] shrink-0" />
+                <span>Your requested time is held for review. I’ll confirm it before sending the calendar invite.</span>
               </div>
 
             </div>
@@ -632,83 +671,83 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
           <div className="lg:col-span-7">
             
             {submitted ? (
-              <div className="bg-slate-900 rounded-3xl p-8 border border-emerald-500/60 shadow-2xl space-y-6">
+              <div className="bg-[#FFFCF8] rounded-2xl p-8 border border-[#C97872]/40 shadow-lg space-y-6 transition-all duration-300 hover:shadow-xl">
                 
                 {/* Header Status Badge */}
                 <div className="text-center space-y-3">
-                  <div className="w-16 h-16 mx-auto rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center justify-center">
+                  <div className="w-16 h-16 mx-auto rounded-full bg-[#C97872]/10 text-[#C97872] border border-[#C97872]/40 flex items-center justify-center">
                     <CheckCircle2 className="w-8 h-8" />
                   </div>
 
                   <div className="space-y-1">
-                    <h3 className="text-2xl font-black text-slate-100">Project Brief Received</h3>
-                    <p className="text-xs sm:text-sm text-slate-300">
-                      Thank you, <strong className="text-emerald-400">{formData.name}</strong>. Your technical inquiry has been received.
+                    <h3 className="text-2xl font-black text-[#1F1D1B]">Project Details Received</h3>
+                    <p className="text-xs sm:text-sm text-[#706B65]">
+                      Thanks, <strong className="text-[#C97872]">{formData.name}</strong>. Wereceived your project details.
                     </p>
                   </div>
 
                   {/* Status Indicator */}
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30 text-xs font-mono font-bold">
-                    <Clock className={`w-3.5 h-3.5 ${submissionReceipt?.status === 'pending_approval' ? 'animate-pulse text-amber-400' : 'text-emerald-400'}`} />
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 text-[#9A7650] border border-amber-500/30 text-xs font-mono font-bold">
+                    <Clock className="w-3.5 h-3.5 text-[#9A7650]" />
                     <span>
                       {submissionReceipt?.status === 'pending_approval' 
-                        ? 'STATUS: PENDING DEVELOPER CONFIRMATION' 
-                        : 'STATUS: CALL APPROVED & CALENDAR EVENT SENT'}
+                        ? 'STATUS: AWAITING CONFIRMATION' 
+                        : 'STATUS: CONFIRMED'}
                     </span>
                   </div>
                 </div>
 
                 {/* Requested Call Slot & Details Summary */}
-                <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-3 text-xs font-mono text-slate-300">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-3 gap-2">
-                    <span className="text-slate-400">Requested Meeting:</span>
-                    <span className="text-indigo-300 font-bold text-sm bg-indigo-950/60 px-2.5 py-1 rounded border border-indigo-800/80">
+                <div className="bg-[#F8F5F0] p-5 rounded-2xl border border-[#DED5CC] space-y-3 text-xs font-mono text-[#706B65]">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#DED5CC] pb-3 gap-2">
+                    <span className="text-[#706B65]">Requested call:</span>
+                    <span className="text-[#B06A64] font-bold text-sm bg-[#DED5CC] px-2.5 py-1 rounded border border-[#DED5CC]">
                       {selectedDate} at {selectedTime} {selectedTimezone} ({callDuration})
                     </span>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
                     <div className="flex justify-between">
-                      <span className="text-slate-500">Target Budget:</span>
-                      <span className="text-slate-200 font-semibold">{formData.budget}</span>
+                      <span className="text-[#706B65]">Budget:</span>
+                      <span className="text-[#1F1D1B] font-semibold">{formData.budget}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-500">Target Timeline:</span>
-                      <span className="text-slate-200 font-semibold">{formData.timeline}</span>
+                      <span className="text-[#706B65]">Timeline:</span>
+                      <span className="text-[#1F1D1B] font-semibold">{formData.timeline}</span>
                     </div>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row justify-between border-t border-slate-800 pt-2 gap-1">
-                    <span className="text-slate-500">Work Email:</span>
-                    <span className="text-slate-200">{formData.email}</span>
+                  <div className="flex flex-col sm:flex-row justify-between border-t border-[#DED5CC] pt-2 gap-1">
+                    <span className="text-[#706B65]">Email:</span>
+                    <span className="text-[#1F1D1B]">{formData.email}</span>
                   </div>
                 </div>
 
                 {/* Informative Explanation */}
-                <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 text-xs text-slate-400 space-y-2 leading-relaxed text-left">
-                  <p className="text-slate-200 font-semibold">What happens next?</p>
+                <div className="p-4 bg-[#F8F5F0]/80 rounded-2xl border border-[#DED5CC] text-xs text-[#706B65] space-y-2 leading-relaxed text-left">
+                  <p className="text-[#1F1D1B] font-semibold">What happens next?</p>
                   <p>
-                    1. <strong>Schedule Review</strong>: We review your requested slot (<span className="text-indigo-400 font-mono">{selectedDate} at {selectedTime} {selectedTimezone}</span>) against the live calendar.
+                    1. <strong>Time review</strong>: We review your requested slot (<span className="text-[#C97872] font-mono">{selectedDate} at {selectedTime} {selectedTimezone}</span>) against the live calendar.
                   </p>
                   <p>
-                    2. <strong>Google Calendar Invite</strong>: Once confirmed, an official Google Calendar invite with a Google Meet video link will be sent directly to <strong className="text-slate-200">{formData.email}</strong>.
+                    2. <strong>Calendar invite</strong>: Once confirmed, an official Google Calendar invite with a Google Meet video link will be sent directly to <strong className="text-[#1F1D1B]">{formData.email}</strong>.
                   </p>
                   <p>
-                    3. <strong>Technical Scope Brief</strong>: A preliminary architecture sprint plan will be attached for review before the call.
+                    3. <strong>Project plan</strong>: A preliminary architecture sprint plan will be attached for review before the call.
                   </p>
                 </div>
 
                 {/* Instant Server AI Proposal Breakdown */}
                 {submissionReceipt && (
-                  <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 text-left space-y-3">
-                    <div className="flex items-center justify-between text-xs font-mono text-emerald-400 border-b border-slate-800 pb-2">
+                  <div className="bg-[#F8F5F0] p-5 rounded-2xl border border-[#DED5CC] text-left space-y-3">
+                    <div className="flex items-center justify-between text-xs font-mono text-[#C97872] border-b border-[#DED5CC] pb-2">
                       <span className="flex items-center gap-1.5 font-bold">
                         <Cpu className="w-4 h-4" />
-                        PRELIMINARY ARCHITECTURE ASSESSMENT
+                        INITIAL PROJECT ASSESSMENT
                       </span>
-                      <span className="text-slate-500">ID: {submissionReceipt.submissionId}</span>
+                      <span className="text-[#706B65]">ID: {submissionReceipt.submissionId}</span>
                     </div>
-                    <p className="text-xs text-slate-300 leading-relaxed font-sans">
+                    <p className="text-xs text-[#706B65] leading-relaxed font-sans">
                       {submissionReceipt.aiProposal}
                     </p>
                   </div>
@@ -716,13 +755,13 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
 
                 {/* Confirmed Call View - shown only after real developer approval */}
                 {submissionReceipt?.status === 'confirmed' && (
-                  <div className="p-5 bg-emerald-950/40 border border-emerald-500/50 rounded-2xl space-y-4 text-left text-xs">
-                    <div className="flex items-center justify-between border-b border-emerald-800/60 pb-3">
-                      <div className="flex items-center gap-2 text-emerald-400 font-bold font-mono">
+                  <div className="p-5 bg-[#FFFCF8] border border-[#C97872]/50 rounded-2xl space-y-4 text-left text-xs">
+                    <div className="flex items-center justify-between border-b border-[#DED5CC] pb-3">
+                      <div className="flex items-center gap-2 text-[#C97872] font-bold font-mono">
                         <Video className="w-4 h-4" />
-                        <span>Google Meet Video Room Ready</span>
+                        <span>Your Google Meet is ready</span>
                       </div>
-                      <span className="text-[11px] font-mono text-emerald-300 bg-emerald-900/60 px-2 py-0.5 rounded border border-emerald-700/60">
+                      <span className="text-[11px] font-mono text-[#C97872] bg-[#DED5CC] px-2 py-0.5 rounded border border-emerald-700/60">
                         CONFIRMED
                       </span>
                     </div>
@@ -733,7 +772,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                         href={submissionReceipt?.meetLink || 'https://meet.google.com/new'}
                         target="_blank"
                         rel="noreferrer"
-                        className="flex-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-3 rounded-xl text-center flex items-center justify-center gap-2 text-xs transition-all shadow-lg shadow-emerald-500/20"
+                        className="flex-1 bg-[#C97872] hover:bg-[#B06A64] text-white font-bold px-4 py-3 rounded-xl text-center flex items-center justify-center gap-2 text-xs transition-all shadow-lg shadow-[#C97872]/20"
                       >
                         <Video className="w-4 h-4" />
                         <span>Join Google Meet Video Room</span>
@@ -748,19 +787,19 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                             setTimeout(() => setCopiedMeetLink(false), 2000);
                           }
                         }}
-                        className="px-3.5 py-3 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 rounded-xl text-xs font-mono flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                        className="px-3.5 py-3 bg-[#FFFCF8] hover:bg-[#DED5CC] border border-[#DED5CC] text-[#1F1D1B] rounded-xl text-xs font-mono flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                         title="Copy Meet Link"
                       >
-                        {copiedMeetLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                        {copiedMeetLink ? <Check className="w-3.5 h-3.5 text-[#C97872]" /> : <Copy className="w-3.5 h-3.5" />}
                         <span>{copiedMeetLink ? 'Copied' : 'Copy'}</span>
                       </button>
                     </div>
 
                     {/* Calendar Synchronization Row */}
                     <div className="pt-2 space-y-2">
-                      <p className="text-[11px] font-mono font-bold text-slate-300 flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5 text-indigo-400" />
-                        <span>Synchronize with Your Calendar:</span>
+                      <p className="text-[11px] font-mono font-bold text-[#706B65] flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 text-[#C97872]" />
+                        <span>Add to your calendar:</span>
                       </p>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                         {/* 1-Click Google Calendar */}
@@ -769,9 +808,9 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                             href={submissionReceipt.googleCalendarUrl}
                             target="_blank"
                             rel="noreferrer"
-                            className="bg-slate-900 hover:bg-indigo-950/80 border border-slate-800 hover:border-indigo-500/60 text-slate-200 hover:text-indigo-300 px-3 py-2 rounded-xl text-[11px] font-mono flex items-center justify-center gap-1.5 transition-all text-center"
+                            className="bg-[#FFFCF8] hover:bg-[#DED5CC] border border-[#DED5CC] hover:border-[#C97872]/60 text-[#1F1D1B] hover:text-[#B06A64] px-3 py-2 rounded-xl text-[11px] font-mono flex items-center justify-center gap-1.5 transition-all text-center"
                           >
-                            <Calendar className="w-3 h-3 text-indigo-400" />
+                            <Calendar className="w-3 h-3 text-[#C97872]" />
                             <span>Google Calendar</span>
                           </a>
                         )}
@@ -782,9 +821,9 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                             href={submissionReceipt.outlookCalendarUrl}
                             target="_blank"
                             rel="noreferrer"
-                            className="bg-slate-900 hover:bg-sky-950/80 border border-slate-800 hover:border-sky-500/60 text-slate-200 hover:text-sky-300 px-3 py-2 rounded-xl text-[11px] font-mono flex items-center justify-center gap-1.5 transition-all text-center"
+                            className="bg-[#FFFCF8] hover:bg-[#FFFCF8] border border-[#DED5CC] hover:border-[#C97872]/50 text-[#1F1D1B] hover:text-[#706B65] px-3 py-2 rounded-xl text-[11px] font-mono flex items-center justify-center gap-1.5 transition-all text-center"
                           >
-                            <CalendarDays className="w-3 h-3 text-sky-400" />
+                            <CalendarDays className="w-3 h-3 text-[#C97872]" />
                             <span>Outlook / 365</span>
                           </a>
                         )}
@@ -793,15 +832,15 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                         <a
                           href={`/api/inquiries/${submissionReceipt?.submissionId}/calendar.ics`}
                           download={`discovery-call-${submissionReceipt?.submissionId}.ics`}
-                          className="bg-slate-900 hover:bg-emerald-950/80 border border-slate-800 hover:border-emerald-500/60 text-slate-200 hover:text-emerald-300 px-3 py-2 rounded-xl text-[11px] font-mono flex items-center justify-center gap-1.5 transition-all text-center"
+                          className="bg-[#FFFCF8] hover:bg-[#FFFCF8] border border-[#DED5CC] hover:border-[#C97872]/60 text-[#1F1D1B] hover:text-[#C97872] px-3 py-2 rounded-xl text-[11px] font-mono flex items-center justify-center gap-1.5 transition-all text-center"
                         >
-                          <Download className="w-3 h-3 text-emerald-400" />
+                          <Download className="w-3 h-3 text-[#C97872]" />
                           <span>Download .ics</span>
                         </a>
                       </div>
                     </div>
 
-                    <p className="text-slate-400 text-[11px] pt-1">
+                    <p className="text-[#706B65] text-[11px] pt-1">
                       Calendar event synchronized for <strong>{selectedDate} at {selectedTime} {selectedTimezone} ({callDuration})</strong> with invite sent to <strong>{formData.email}</strong>.
                     </p>
                   </div>
@@ -816,9 +855,9 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                       setFormData({
                         name: '',
                         email: '',
-                        subject: 'Web App Sprint Inquiry',
+                        subject: 'New Website or Web App Project',
                         company: '',
-                        budget: '$2,500 - $5,000',
+                        budget: '₹8,000 - ₹28,000',
                         timeline: '3 - 4 Weeks',
                         message: '',
                         website_hp: '',
@@ -826,7 +865,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                         captchaAnswer: '7',
                       });
                     }}
-                    className="px-6 py-2.5 rounded-xl bg-slate-800 text-slate-200 text-xs font-bold hover:bg-slate-700 transition-colors cursor-pointer"
+                    className="px-6 py-2.5 rounded-xl bg-[#DED5CC] text-[#1F1D1B] text-xs font-bold hover:bg-[#DED5CC] transition-colors cursor-pointer"
                   >
                     Submit Another Inquiry
                   </button>
@@ -836,26 +875,26 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
             ) : (
               <form
                 onSubmit={handleSubmit}
-                className="bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-2xl space-y-5"
+                className="group/form bg-[#FFFCF8] rounded-2xl p-6 sm:p-8 border border-[#DED5CC] shadow-lg space-y-5 transition-all duration-300 hover:border-[#C97872]/35 hover:shadow-xl"
               >
                 
                 {/* Header Badge */}
-                <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-                  <div className="flex items-center gap-2 text-xs font-mono font-bold text-slate-300 uppercase">
-                    <FileText className="w-4 h-4 text-emerald-400" />
-                    <span>Technical Sprint Inquiry Form</span>
+                <div className="flex items-center justify-between border-b border-[#DED5CC] pb-4">
+                  <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#706B65] uppercase">
+                    <FileText className="w-4 h-4 text-[#C97872]" />
+                    <span>Tell Me About Your Project</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-[11px] font-mono text-emerald-400 bg-emerald-950/60 px-2.5 py-1 rounded-full border border-emerald-800/80">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Honeypot + Bot Shield Active</span>
+                  <div className="flex items-center gap-1.5 text-[11px] font-mono text-[#C97872] bg-[#FFFCF8] px-2.5 py-1 rounded-full border border-[#DED5CC]">
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#C97872]" />
+                    <span>Secure inquiry form</span>
                   </div>
                 </div>
 
                 {initialBrief && (
-                  <div className="bg-emerald-950/60 p-3.5 rounded-2xl border border-emerald-800/80 flex items-center justify-between text-xs font-mono text-emerald-300">
+                  <div className="bg-[#FFFCF8] p-3.5 rounded-2xl border border-[#DED5CC] flex items-center justify-between text-xs font-mono text-[#C97872]">
                     <span className="flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-emerald-400" />
-                      <span>Pre-filled from Scope Estimator</span>
+                      <Sparkles className="w-4 h-4 text-[#C97872]" />
+                      <span>Details added from the project estimator</span>
                     </span>
                     <span className="font-bold">{initialBrief.priceRange}</span>
                   </div>
@@ -863,8 +902,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
 
                 {/* Server-level Error Alert */}
                 {formErrors.server && (
-                  <div className="p-3.5 bg-rose-950/80 border border-rose-500/50 rounded-xl flex items-center gap-2 text-xs text-rose-300 font-medium">
-                    <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                  <div className="p-3.5 bg-[#FFFCF8] border border-[#B76E6A]/50 rounded-xl flex items-center gap-2 text-xs text-[#C97872] font-medium">
+                    <AlertCircle className="w-4 h-4 text-[#C97872] shrink-0" />
                     <span>{formErrors.server}</span>
                   </div>
                 )}
@@ -898,21 +937,21 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Name */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-mono font-bold text-slate-300 flex items-center gap-1.5">
-                      <User className="w-3.5 h-3.5 text-slate-500" />
-                      <span>Full Name *</span>
+                    <label className="text-xs font-mono font-bold text-[#706B65] flex items-center gap-1.5">
+                      <User className="w-3.5 h-3.5 text-[#706B65]" />
+                      <span>Your Name *</span>
                     </label>
                     <input
                       type="text"
                       placeholder="e.g. Sarah Connor"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className={`w-full bg-slate-950 text-slate-200 placeholder-slate-600 text-xs px-3.5 py-3 rounded-xl border transition-all ${
-                        formErrors.name ? 'border-rose-500 focus:border-rose-400' : 'border-slate-800 focus:border-emerald-500'
+                      className={`w-full bg-[#F8F5F0] text-[#1F1D1B] placeholder-[#9B857B] text-xs px-3.5 py-3 rounded-xl border transition-all ${
+                        formErrors.name ? 'border-[#B76E6A] focus:border-[#C97872]' : 'border-[#DED5CC] focus:border-[#C97872]'
                       }`}
                     />
                     {formErrors.name && (
-                      <p className="text-[11px] text-rose-400 flex items-center gap-1">
+                      <p className="text-[11px] text-[#C97872] flex items-center gap-1">
                         <AlertCircle className="w-3 h-3" />
                         <span>{formErrors.name}</span>
                       </p>
@@ -921,21 +960,21 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
 
                   {/* Email */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-mono font-bold text-slate-300 flex items-center gap-1.5">
-                      <Mail className="w-3.5 h-3.5 text-slate-500" />
-                      <span>Work Email *</span>
+                    <label className="text-xs font-mono font-bold text-[#706B65] flex items-center gap-1.5">
+                      <Mail className="w-3.5 h-3.5 text-[#706B65]" />
+                      <span>Your Email *</span>
                     </label>
                     <input
                       type="email"
                       placeholder="sarah@company.com"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className={`w-full bg-slate-950 text-slate-200 placeholder-slate-600 text-xs px-3.5 py-3 rounded-xl border transition-all ${
-                        formErrors.email ? 'border-rose-500 focus:border-rose-400' : 'border-slate-800 focus:border-emerald-500'
+                      className={`w-full bg-[#F8F5F0] text-[#1F1D1B] placeholder-[#9B857B] text-xs px-3.5 py-3 rounded-xl border transition-all ${
+                        formErrors.email ? 'border-[#B76E6A] focus:border-[#C97872]' : 'border-[#DED5CC] focus:border-[#C97872]'
                       }`}
                     />
                     {formErrors.email && (
-                      <p className="text-[11px] text-rose-400 flex items-center gap-1">
+                      <p className="text-[11px] text-[#C97872] flex items-center gap-1">
                         <AlertCircle className="w-3 h-3" />
                         <span>{formErrors.email}</span>
                       </p>
@@ -946,32 +985,32 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 {/* Subject Field with Requirement Refiner */}
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-mono font-bold text-slate-300 flex items-center gap-1.5">
-                      <FileText className="w-3.5 h-3.5 text-slate-500" />
-                      <span>Subject / Project Title *</span>
+                    <label className="text-xs font-mono font-bold text-[#706B65] flex items-center gap-1.5">
+                      <FileText className="w-3.5 h-3.5 text-[#706B65]" />
+                      <span>What are you building? *</span>
                     </label>
                     <button
                       type="button"
                       onClick={() => handleAiInstantAssist('subject')}
                       disabled={isAiSuggesting}
-                      className="text-[10px] font-mono font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/60 transition-colors disabled:opacity-50"
+                      className="text-[10px] font-mono font-semibold text-[#C97872] hover:text-[#C97872] flex items-center gap-1 bg-[#FFFCF8] px-2 py-0.5 rounded border border-[#DED5CC] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#C97872]/50 hover:shadow-sm disabled:opacity-50"
                       title="Refine subject header"
                     >
-                      <Zap className="w-3 h-3 text-emerald-400" />
-                      <span>⚡ Refine Title</span>
+                      <Zap className="w-3 h-3 text-[#C97872]" />
+                      <span>Help me phrase this</span>
                     </button>
                   </div>
                   <input
                     type="text"
-                    placeholder="e.g. Full-Stack SaaS Dashboard Sprint"
+                    placeholder="e.g. Restaurant Website, Online Store, Booking App"
                     value={formData.subject}
                     onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                    className={`w-full bg-slate-950 text-slate-200 placeholder-slate-600 text-xs px-3.5 py-3 rounded-xl border transition-all ${
-                      formErrors.subject ? 'border-rose-500 focus:border-rose-400' : 'border-slate-800 focus:border-emerald-500'
+                    className={`w-full bg-[#F8F5F0] text-[#1F1D1B] placeholder-[#9B857B] text-xs px-3.5 py-3 rounded-xl border transition-all ${
+                      formErrors.subject ? 'border-[#B76E6A] focus:border-[#C97872]' : 'border-[#DED5CC] focus:border-[#C97872]'
                     }`}
                   />
                   {formErrors.subject && (
-                    <p className="text-[11px] text-rose-400 flex items-center gap-1">
+                    <p className="text-[11px] text-[#C97872] flex items-center gap-1">
                       <AlertCircle className="w-3 h-3" />
                       <span>{formErrors.subject}</span>
                     </p>
@@ -982,33 +1021,33 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Company */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-mono font-bold text-slate-300 flex items-center gap-1.5">
-                      <Building2 className="w-3.5 h-3.5 text-slate-500" />
-                      <span>Company / Website URL</span>
+                    <label className="text-xs font-mono font-bold text-[#706B65] flex items-center gap-1.5">
+                      <Building2 className="w-3.5 h-3.5 text-[#706B65]" />
+                      <span>Business / Website (optional)</span>
                     </label>
                     <input
                       type="text"
                       placeholder="e.g. acme.com"
                       value={formData.company}
                       onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                      className="w-full bg-slate-950 text-slate-200 placeholder-slate-600 text-xs px-3.5 py-3 rounded-xl border border-slate-800 focus:outline-none focus:border-emerald-500 transition-all"
+                      className="w-full bg-[#F8F5F0] text-[#1F1D1B] placeholder-[#9B857B] text-xs px-3.5 py-3 rounded-xl border border-[#DED5CC] focus:outline-none focus:border-[#C97872] focus:ring-2 focus:ring-[#C97872]/10 transition-all hover:border-[#C97872]/40"
                     />
                   </div>
 
                   {/* Target Budget */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-mono font-bold text-slate-300 flex items-center gap-1.5">
-                      <DollarSign className="w-3.5 h-3.5 text-slate-500" />
-                      <span>Target Budget Range</span>
+                    <label className="text-xs font-mono font-bold text-[#706B65] flex items-center gap-1.5">
+                      <DollarSign className="w-3.5 h-3.5 text-[#706B65]" />
+                      <span>Approximate Budget</span>
                     </label>
                     <select
                       value={formData.budget}
                       onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
-                      className="w-full bg-slate-950 text-slate-200 text-xs px-3.5 py-3 rounded-xl border border-slate-800 focus:outline-none focus:border-emerald-500 transition-all"
+                      className="w-full bg-[#F8F5F0] text-[#1F1D1B] text-xs px-3.5 py-3 rounded-xl border border-[#DED5CC] focus:outline-none focus:border-[#C97872] focus:ring-2 focus:ring-[#C97872]/10 transition-all hover:border-[#C97872]/40"
                     >
-                      <option value="$1,000 - $2,500">$1,000 - $2,500 (MVP Sprint)</option>
-                      <option value="$2,500 - $5,000">$2,500 - $5,000 (Standard Full-Stack)</option>
-                      <option value="$5,000+">$5,000+ (Custom Enterprise App)</option>
+                      <option value="₹8,000 - ₹15,000">₹8,000 - ₹15,000 (Landing / Small Website)</option>
+                      <option value="₹15,000 - ₹28,000">₹15,000 - ₹28,000 (Full Website / MVP)</option>
+                      <option value="₹28,000+">₹28,000+ (Custom Web App)</option>
                     </select>
                   </div>
                 </div>
@@ -1016,44 +1055,44 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 {/* Message / Requirements Field with Instant Refiner */}
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-mono font-bold text-slate-300 flex items-center gap-1.5">
-                      <MessageSquare className="w-3.5 h-3.5 text-slate-500" />
-                      <span>Project Requirements & Message *</span>
+                    <label className="text-xs font-mono font-bold text-[#706B65] flex items-center gap-1.5">
+                      <MessageSquare className="w-3.5 h-3.5 text-[#706B65]" />
+                      <span>Tell me about the project *</span>
                     </label>
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
                         onClick={() => handleAiInstantAssist('message')}
                         disabled={isAiSuggesting}
-                        className="text-[10px] font-mono font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/60 transition-colors disabled:opacity-50"
+                        className="text-[10px] font-mono font-semibold text-[#C97872] hover:text-[#C97872] flex items-center gap-1 bg-[#FFFCF8] px-2 py-0.5 rounded border border-[#DED5CC] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#C97872]/50 hover:shadow-sm disabled:opacity-50"
                         title="Auto-format project brief"
                       >
-                        <Zap className="w-3 h-3 text-emerald-400" />
-                        <span>⚡ Refine Brief</span>
+                        <Zap className="w-3 h-3 text-[#C97872]" />
+                        <span>Improve my description</span>
                       </button>
                       <button
                         type="button"
                         onClick={handleAiScopeReview}
                         disabled={isAiSuggesting}
-                        className="text-[10px] font-mono font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 bg-indigo-950/60 px-2 py-0.5 rounded border border-indigo-800/60 transition-colors disabled:opacity-50"
+                        className="text-[10px] font-mono font-semibold text-[#C97872] hover:text-[#B06A64] flex items-center gap-1 bg-[#DED5CC] px-2 py-0.5 rounded border border-[#DED5CC] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#C97872]/50 hover:shadow-sm disabled:opacity-50"
                         title="Get live technical scope assessment"
                       >
-                        <Cpu className="w-3 h-3 text-indigo-400" />
-                        <span>Scope Check</span>
+                        <Cpu className="w-3 h-3 text-[#C97872]" />
+                        <span>Quick scope check</span>
                       </button>
                     </div>
                   </div>
                   <textarea
                     rows={4}
-                    placeholder="Describe what you want to build, key features, performance goals, or deadline..."
+                    placeholder="Tell me what you want to build, what it should do, and any deadline or budget you have..."
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    className={`w-full bg-slate-950 text-slate-200 placeholder-slate-600 text-xs p-3.5 rounded-xl border transition-all resize-none ${
-                      formErrors.message ? 'border-rose-500 focus:border-rose-400' : 'border-slate-800 focus:border-emerald-500'
+                    className={`w-full bg-[#F8F5F0] text-[#1F1D1B] placeholder-[#9B857B] text-xs p-3.5 rounded-xl border transition-all resize-none ${
+                      formErrors.message ? 'border-[#B76E6A] focus:border-[#C97872]' : 'border-[#DED5CC] focus:border-[#C97872]'
                     }`}
                   />
                   {formErrors.message && (
-                    <p className="text-[11px] text-rose-400 flex items-center gap-1">
+                    <p className="text-[11px] text-[#C97872] flex items-center gap-1">
                       <AlertCircle className="w-3 h-3" />
                       <span>{formErrors.message}</span>
                     </p>
@@ -1061,58 +1100,60 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 </div>
 
                 {/* Selected Meeting Slot & Inline Change Widget */}
-                <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 space-y-3">
+                <div className="p-4 bg-[#F8F5F0] rounded-2xl border border-[#DED5CC] space-y-3">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-xs font-mono font-bold text-slate-300">
-                      <Calendar className="w-4 h-4 text-indigo-400" />
-                      <span>Requested Meeting Window:</span>
+                    <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#706B65]">
+                      <Calendar className="w-4 h-4 text-[#C97872]" />
+                      <span>Requested Preferred Meeting:</span>
                     </div>
                     <button
                       type="button"
                       onClick={() => setIsEditingMeetingInline(!isEditingMeetingInline)}
-                      className="text-[11px] font-mono text-indigo-400 hover:text-indigo-300 flex items-center gap-1 bg-indigo-950/60 px-2.5 py-1 rounded-lg border border-indigo-800/60 transition-colors cursor-pointer"
+                      className="text-[11px] font-mono text-[#C97872] hover:text-[#B06A64] flex items-center gap-1 bg-[#DED5CC] px-2.5 py-1 rounded-lg border border-[#DED5CC] transition-colors cursor-pointer"
                     >
                       <Edit3 className="w-3 h-3" />
-                      <span>{isEditingMeetingInline ? 'Done Editing' : 'Change Date / Time'}</span>
+                      <span>{isEditingMeetingInline ? 'Done' : 'Change date / time'}</span>
                     </button>
                   </div>
 
                   {/* Summary display */}
                   <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
-                    <span className="text-indigo-300 font-bold bg-indigo-950/60 px-3 py-1 rounded-lg border border-indigo-800/70">
-                      {selectedDate}, {selectedTime} {selectedTimezone}
+                    <span className="text-[#B06A64] font-bold bg-[#DED5CC] px-3 py-1 rounded-lg border border-[#DED5CC]">
+                      {selectedDate.includes('-')
+                        ? (availableSchedule.find((d) => d.isoDate === selectedDate)?.date || selectedDate)
+                        : selectedDate}, {selectedTime} {selectedTimezone}
                     </span>
-                    <span className="text-slate-400 bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800">
-                      Duration: <strong className="text-slate-200">{callDuration}</strong>
+                    <span className="text-[#706B65] bg-[#FFFCF8] px-2.5 py-1 rounded-lg border border-[#DED5CC]">
+                      Duration: <strong className="text-[#1F1D1B]">{callDuration}</strong>
                     </span>
                   </div>
 
                   {/* Inline Quick Date/Time modifier */}
                   {isEditingMeetingInline && (
-                    <div className="pt-3 border-t border-slate-800 space-y-3 text-xs">
+                    <div className="pt-3 border-t border-[#DED5CC] space-y-3 text-xs">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                          <label className="text-[11px] text-slate-400 font-mono block mb-1">Set Custom Date:</label>
+                          <label className="text-[11px] text-[#706B65] font-mono block mb-1">Set Custom Date:</label>
                           <input
                             type="date"
                             min={minCustomDate}
                             value={customDateInput}
                             onChange={(e) => handleCustomDateChange(e.target.value)}
-                            className="w-full bg-slate-900 text-slate-200 text-xs px-3 py-2 rounded-lg border border-slate-800 focus:outline-none font-mono cursor-pointer"
+                            className="w-full bg-[#FFFCF8] text-[#1F1D1B] text-xs px-3 py-2 rounded-lg border border-[#DED5CC] focus:outline-none font-mono cursor-pointer"
                           />
                         </div>
                         <div>
-                          <label className="text-[11px] text-slate-400 font-mono block mb-1">Set Time ({selectedTimezone}):</label>
+                          <label className="text-[11px] text-[#706B65] font-mono block mb-1">Set Time ({selectedTimezone}):</label>
                           <input
                             type="time"
                             value={customTimeInput}
                             onChange={(e) => handleCustomTimeChange(e.target.value)}
-                            className="w-full bg-slate-900 text-emerald-400 text-xs px-3 py-2 rounded-lg border border-slate-800 focus:outline-none font-mono font-bold cursor-pointer"
+                            className="w-full bg-[#FFFCF8] text-[#C97872] text-xs px-3 py-2 rounded-lg border border-[#DED5CC] focus:outline-none font-mono font-bold cursor-pointer"
                           />
                         </div>
                       </div>
                       
-                      <div className="flex flex-wrap items-center justify-between text-[11px] text-slate-400 font-mono pt-1 gap-2">
+                      <div className="flex flex-wrap items-center justify-between text-[11px] text-[#706B65] font-mono pt-1 gap-2">
                         <span>Select call duration:</span>
                         <div className="flex gap-1.5">
                           {['15 Mins', '30 Mins', '45 Mins'].map((d) => (
@@ -1122,8 +1163,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                               onClick={() => setCallDuration(d)}
                               className={`px-2 py-0.5 rounded border text-[10px] cursor-pointer ${
                                 callDuration === d
-                                  ? 'bg-indigo-950 border-indigo-500 text-indigo-300 font-bold'
-                                  : 'bg-slate-900 border-slate-800 text-slate-400'
+                                  ? 'bg-[#1F1D1B] border-[#C97872] text-[#B06A64] font-bold'
+                                  : 'bg-[#FFFCF8] border-[#DED5CC] text-[#706B65]'
                               }`}
                             >
                               {d}
@@ -1137,12 +1178,12 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
 
                 {/* AI Scope Review Live Card */}
                 {aiScopePreview && (
-                  <div className="p-3.5 bg-indigo-950/40 border border-indigo-800/60 rounded-xl space-y-1 text-xs text-indigo-200">
-                    <div className="flex items-center gap-1.5 font-mono text-[11px] text-indigo-400 font-bold">
-                      <Zap className="w-3.5 h-3.5 text-indigo-400" />
-                      <span>Flash-Lite Instant Scope Assessment</span>
+                  <div className="p-3.5 bg-[#FFFCF8] border border-[#DED5CC] rounded-xl space-y-1 text-xs text-[#706B65]">
+                    <div className="flex items-center gap-1.5 font-mono text-[11px] text-[#C97872] font-bold">
+                      <Zap className="w-3.5 h-3.5 text-[#C97872]" />
+                      <span>Quick project assessment</span>
                     </div>
-                    <p className="text-slate-300 text-xs leading-relaxed">{aiScopePreview}</p>
+                    <p className="text-[#706B65] text-xs leading-relaxed">{aiScopePreview}</p>
                   </div>
                 )}
 
@@ -1151,17 +1192,18 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   type="submit"
                   id="contact-form-submit-btn"
                   disabled={isSubmitting}
-                  className="w-full py-4 rounded-2xl bg-emerald-500 text-slate-950 font-black text-sm hover:bg-emerald-400 transition-all flex items-center justify-center gap-2 shadow-xl shadow-emerald-500/20 active:scale-[0.99] disabled:opacity-50 cursor-pointer"
+                  className="group/submit relative overflow-hidden w-full py-4 rounded-2xl bg-[#C97872] text-white font-black text-sm hover:bg-[#B06A64] hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 shadow-xl shadow-[#C97872]/20 active:scale-[0.99] disabled:opacity-50 cursor-pointer"
                 >
+                  <span className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 -skew-x-12 bg-white/15 transition-transform duration-700 group-hover/submit:translate-x-[430%]" />
                   {isSubmitting ? (
                     <>
-                      <RefreshCw className="w-4 h-4 animate-spin text-slate-950" />
-                      <span>Submitting Inquiry for Schedule Review...</span>
+                      <RefreshCw className="w-4 h-4 animate-spin text-[#1F1D1B]" />
+                      <span>Submitting Inquiry for Time review...</span>
                     </>
                   ) : (
                     <>
                       <Send className="w-4 h-4" />
-                      <span>Submit Inquiry & Request Meeting Slot</span>
+                      <span>Send Project Details & Request a Call</span>
                     </>
                   )}
                 </button>

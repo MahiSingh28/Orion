@@ -22,7 +22,6 @@ interface HeroProps {
   onOpenEstimator: () => void;
   onOpenContact: () => void;
 }
-
 export const Hero: React.FC<HeroProps> = ({
   onExploreWorks,
   onOpenEstimator,
@@ -38,10 +37,10 @@ export const Hero: React.FC<HeroProps> = ({
   };
 
   return (
-    <section id="hero" className="relative pt-8 pb-16 md:pt-16 md:pb-24 overflow-hidden border-b border-slate-800/60">
+    <section id="hero" className="relative pt-8 pb-16 md:pt-16 md:pb-24 overflow-hidden border-b border-[#DED5CC]/60">
       {/* Background ambient lighting accents */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none -z-10" />
-      <div className="absolute top-1/3 right-10 w-[300px] h-[300px] bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none -z-10" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-[#C97872]/8 rounded-full blur-[120px] pointer-events-none -z-10" />
+      <div className="absolute top-1/3 right-10 w-[300px] h-[300px] bg-[#C97872]/10 rounded-full blur-[100px] pointer-events-none -z-10" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
@@ -53,33 +52,32 @@ export const Hero: React.FC<HeroProps> = ({
           <div className="lg:col-span-7 space-y-6">
             
             {/* Status & Credibility Pill */}
-            <div className="inline-flex flex-wrap items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/90 border border-slate-800 text-xs font-mono">
-              <span className="flex items-center gap-1.5 text-emerald-400 font-semibold">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                Orion • Freelance Full-Stack Developer
+            <div className="group inline-flex flex-wrap items-center gap-2 px-3 py-1.5 rounded-full bg-[#FFFCF8]/90 border border-[#DED5CC] text-xs font-mono transition-all duration-300 hover:-translate-y-0.5 hover:border-[#C97872]/40 hover:shadow-[0_8px_24px_rgba(201,120,114,0.10)]">
+              <span className="flex items-center gap-1.5 text-[#C97872] font-semibold">
+                
+                Orion • Web Developer
               </span>
-              <span className="text-slate-600">|</span>
-              <span className="text-slate-300">Bengaluru, India 🇮🇳</span>
-              <span className="text-slate-600">|</span>
-              <span className="text-indigo-400 font-medium">100/100 Lighthouse SEO & Speed</span>
+              <span className="text-[#706B65]">|</span>
+              <span className="text-[#706B65]">Bengaluru, India 🇮🇳</span>
+              <span className="text-[#706B65]">|</span>
+              <span className="text-[#C97872] font-medium">Fast, search-friendly websites</span>
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-100 tracking-tight leading-[1.1]">
-              High-Performance <br className="hidden sm:inline" />
-              <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-indigo-400 bg-clip-text text-transparent">
-                Web Apps & SEO Platforms
-              </span> <br className="hidden sm:inline" />
-              Built for Growth.
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-[#1F1D1B] tracking-tight leading-[1.1]">
+              Websites & Web Apps <br className="hidden sm:inline" />
+              <span className="text-[#C97872]">
+                Built to Work for Your Business.
+              </span>
             </h1>
 
             {/* Tech Stack Badges Bar */}
             <div className="flex flex-wrap items-center gap-1.5 pt-1">
-              <span className="text-xs font-mono text-slate-400 mr-1 font-semibold">Tech Stack:</span>
-              {['HTML5', 'CSS3', 'JavaScript', 'Node.js', 'React', 'Tailwind CSS', 'SEO', 'TypeScript'].map((tech) => (
+              <span className="text-xs font-mono text-[#706B65] mr-1 font-semibold">we work with:</span>
+              {['React', 'TypeScript', 'Node.js', 'Tailwind', 'JavaScript', 'SEO'].map((tech) => (
                 <span
                   key={tech}
-                  className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-[11px] font-mono font-medium text-emerald-400"
+                  className="px-2 py-0.5 rounded bg-[#FFFCF8] border border-[#DED5CC] text-[11px] font-mono font-medium text-[#C97872]"
                 >
                   {tech}
                 </span>
@@ -87,27 +85,27 @@ export const Hero: React.FC<HeroProps> = ({
             </div>
 
             {/* Subtitle */}
-            <p className="text-base sm:text-lg text-slate-300 max-w-2xl leading-relaxed">
-              I build custom React, Node.js, and TypeScript web applications with clean HTML/CSS architecture, Tailwind styling, and top-tier SEO optimizations that load under <strong className="text-emerald-400 font-semibold">0.8 seconds</strong>.
+            <p className="text-base sm:text-lg text-[#706B65] max-w-2xl leading-relaxed">
+              We design and build fast, modern websites and web apps — from business websites and online stores to custom tools and dashboards. We handle the design, development, and launch.
             </p>
 
             {/* Key Value Guarantee Points */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-              <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-300 bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/80">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span><strong>HTML5 / CSS3 / Tailwind CSS</strong> Layouts</span>
+              <div className="group flex items-center gap-2 text-xs sm:text-sm text-[#706B65] bg-[#FFFCF8]/40 p-2.5 rounded-xl border border-[#DED5CC]/80 transition-all duration-300 hover:-translate-y-1 hover:bg-[#FFFCF8] hover:border-[#C97872]/35 hover:shadow-[0_10px_24px_rgba(201,120,114,0.10)]">
+                <CheckCircle2 className="w-4 h-4 text-[#C97872] shrink-0" />
+                <span><strong>Responsive</strong> websites that work beautifully on phones and computers</span>
               </div>
-              <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-300 bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/80">
-                <ShieldCheck className="w-4 h-4 text-indigo-400 shrink-0" />
-                <span><strong>Node.js + React + TypeScript</strong> Stack</span>
+              <div className="group flex items-center gap-2 text-xs sm:text-sm text-[#706B65] bg-[#FFFCF8]/40 p-2.5 rounded-xl border border-[#DED5CC]/80 transition-all duration-300 hover:-translate-y-1 hover:bg-[#FFFCF8] hover:border-[#C97872]/35 hover:shadow-[0_10px_24px_rgba(201,120,114,0.10)]">
+                <ShieldCheck className="w-4 h-4 text-[#C97872] shrink-0" />
+                <span><strong>Custom web apps</strong> built around how your business actually works</span>
               </div>
-              <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-300 bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/80">
-                <Clock className="w-4 h-4 text-teal-400 shrink-0" />
-                <span><strong>Core Web Vitals & Technical SEO</strong></span>
+              <div className="group flex items-center gap-2 text-xs sm:text-sm text-[#706B65] bg-[#FFFCF8]/40 p-2.5 rounded-xl border border-[#DED5CC]/80 transition-all duration-300 hover:-translate-y-1 hover:bg-[#FFFCF8] hover:border-[#C97872]/35 hover:shadow-[0_10px_24px_rgba(201,120,114,0.10)]">
+                <Clock className="w-4 h-4 text-[#B76E6A] shrink-0" />
+                <span><strong>Fast & search-friendly</strong> pages that are built for a better Google experience</span>
               </div>
-              <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-300 bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/80">
-                <Zap className="w-4 h-4 text-amber-400 shrink-0" />
-                <span><strong>Interactive Sandbox Demos</strong></span>
+              <div className="group flex items-center gap-2 text-xs sm:text-sm text-[#706B65] bg-[#FFFCF8]/40 p-2.5 rounded-xl border border-[#DED5CC]/80 transition-all duration-300 hover:-translate-y-1 hover:bg-[#FFFCF8] hover:border-[#C97872]/35 hover:shadow-[0_10px_24px_rgba(201,120,114,0.10)]">
+                <Zap className="w-4 h-4 text-[#9A7650] shrink-0" />
+                <span><strong>Regular previews</strong> so you can see and review the work as it develops</span>
               </div>
             </div>
 
@@ -116,36 +114,36 @@ export const Hero: React.FC<HeroProps> = ({
               <button
                 id="hero-explore-works-btn"
                 onClick={onExploreWorks}
-                className="px-6 py-3.5 rounded-xl font-bold text-sm bg-emerald-500 text-slate-950 hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-2 hover:translate-x-0.5 active:translate-x-0"
+                className="group relative overflow-hidden px-6 py-3.5 rounded-xl font-bold text-sm bg-[#C97872] text-white hover:bg-[#B06A64] transition-all duration-300 shadow-md shadow-[#C97872]/15 flex items-center gap-2 hover:-translate-y-1 hover:shadow-[0_14px_30px_rgba(201,120,114,0.22)] active:translate-y-0"
               >
-                <span>View Selected Case Studies</span>
+                <span>See My Work</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
 
               <button
                 id="hero-estimator-btn"
                 onClick={onOpenEstimator}
-                className="px-5 py-3.5 rounded-xl font-semibold text-sm bg-slate-900 text-slate-200 hover:text-white border border-slate-700/80 hover:border-slate-600 transition-all flex items-center gap-2"
+                className="group px-5 py-3.5 rounded-xl font-semibold text-sm bg-[#FFFCF8] text-[#6F5B52] hover:text-white hover:bg-[#B06A64] border border-[#DED5CC]/80 hover:border-[#B06A64] transition-all duration-300 flex items-center gap-2 hover:-translate-y-1 hover:shadow-[0_12px_26px_rgba(176,106,100,0.16)]"
               >
-                <Cpu className="w-4 h-4 text-indigo-400" />
-                <span>Calculate Scope & Cost</span>
+                <Cpu className="w-4 h-4 text-[#C97872] transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110" />
+                <span>Get a Project Estimate</span>
               </button>
 
               {/* Email Copy Pill */}
               <button
                 id="hero-copy-email-btn"
                 onClick={handleCopyEmail}
-                className="px-4 py-3 rounded-xl font-mono text-xs bg-slate-950 text-slate-400 hover:text-slate-200 border border-slate-800 transition-all flex items-center gap-2"
+                className="group px-4 py-3 rounded-xl font-mono text-xs bg-[#F8F5F0] text-[#706B65] hover:text-[#1F1D1B] border border-[#DED5CC] transition-all duration-300 flex items-center gap-2 hover:-translate-y-1 hover:border-[#C97872]/40 hover:shadow-[0_10px_24px_rgba(201,120,114,0.10)]"
                 title="Copy email to clipboard"
               >
                 {copied ? (
                   <>
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
-                    <span className="text-emerald-400 font-sans font-medium">Copied!</span>
+                    <Check className="w-3.5 h-3.5 text-[#C97872]" />
+                    <span className="text-[#C97872] font-sans font-medium">Copied!</span>
                   </>
                 ) : (
                   <>
-                    <Copy className="w-3.5 h-3.5 text-slate-500" />
+                    <Copy className="w-3.5 h-3.5 text-[#706B65]" />
                     <span>{email}</span>
                   </>
                 )}
@@ -153,18 +151,18 @@ export const Hero: React.FC<HeroProps> = ({
             </div>
 
             {/* Social Proof Stats Bar */}
-            <div className="pt-6 border-t border-slate-800/80 grid grid-cols-3 gap-4">
+            <div className="pt-6 border-t border-[#DED5CC]/80 grid grid-cols-3 gap-4">
               <div>
-                <p className="text-2xl sm:text-3xl font-black text-slate-100 font-mono tracking-tight">15+</p>
-                <p className="text-xs text-slate-400 mt-0.5">Demo & Internship Builds</p>
+                <p className="text-2xl sm:text-3xl font-black text-[#1F1D1B] font-mono tracking-tight">15+</p>
+                <p className="text-xs text-[#706B65] mt-0.5">Projects & builds</p>
               </div>
               <div>
-                <p className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono tracking-tight">100/100</p>
-                <p className="text-xs text-slate-400 mt-0.5">Core Web Vitals Target</p>
+                <p className="text-2xl sm:text-3xl font-black text-[#C97872] font-mono tracking-tight">Fast</p>
+                <p className="text-xs text-[#706B65] mt-0.5">Performance-focused</p>
               </div>
               <div>
-                <p className="text-2xl sm:text-3xl font-black text-indigo-400 font-mono tracking-tight">100%</p>
-                <p className="text-xs text-slate-400 mt-0.5">Code Dedication</p>
+                <p className="text-2xl sm:text-3xl font-black text-[#C97872] font-mono tracking-tight">100%</p>
+                <p className="text-xs text-[#706B65] mt-0.5">Attention to detail</p>
               </div>
             </div>
 
@@ -172,106 +170,97 @@ export const Hero: React.FC<HeroProps> = ({
 
           {/* Right Column: Interactive Developer Terminal / Performance Badge Widget */}
           <div className="lg:col-span-5">
-            <div className="bg-slate-900/90 rounded-2xl border border-slate-800 shadow-2xl overflow-hidden">
+            <div className="group/terminal bg-[#FFFCF8] rounded-2xl border border-[#DED5CC] shadow-lg overflow-hidden transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(31,29,27,0.10)] hover:border-[#C97872]/30">
               
               {/* Terminal Header */}
-              <div className="bg-slate-950 px-4 py-3 border-b border-slate-800/80 flex items-center justify-between">
+              <div className="bg-[#F8F5F0] px-4 py-3 border-b border-[#DED5CC]/80 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-rose-500/80" />
-                  <div className="w-3 h-3 rounded-full bg-amber-500/80" />
-                  <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
-                  <span className="ml-2 font-mono text-xs text-slate-400">developer-profile.ts</span>
+                  <div className="w-3 h-3 rounded-full bg-[#D8B2B2]/80" />
+                  <div className="w-3 h-3 rounded-full bg-[#C9A77D]/80" />
+                  <div className="w-3 h-3 rounded-full bg-[#C97872]/80" />
+                  <span className="ml-2 font-mono text-xs text-[#706B65]">orion-developer.ts</span>
                 </div>
-                <div className="flex items-center gap-1 text-[11px] font-mono text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/50">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                  LIVE BENCHMARK
+                <div className="flex items-center gap-1 text-[11px] font-mono text-[#C97872] bg-[#DED5CC]/60 px-2 py-0.5 rounded border border-[#DED5CC]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#C97872] animate-ping" />
+                  DEVELOPER PROFILE
                 </div>
               </div>
 
               {/* Lighthouse Speed Guarantees */}
               <div className="p-5 space-y-5">
                 <div>
-                  <div className="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">
-                    <span>Google Lighthouse Audit Target</span>
-                    <span className="text-emerald-400 font-bold">100 / 100 PASS</span>
+                  <div className="flex items-center justify-between text-xs text-[#706B65] mb-2">
+                    <span>How We build</span>
+                    <span className="text-[#C97872] font-semibold">Performance-first</span>
                   </div>
-                  <div className="grid grid-cols-4 gap-2">
-                    <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-center">
-                      <div className="w-9 h-9 mx-auto rounded-full border-2 border-emerald-400 flex items-center justify-center text-emerald-400 font-bold font-mono text-xs mb-1">
-                        100
-                      </div>
-                      <span className="text-[10px] text-slate-400 block font-medium">Performance</span>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="group/feature bg-[#F8F5F0] p-3 rounded-xl border border-[#DED5CC] transition-all duration-300 hover:-translate-y-1 hover:bg-[#FFFCF8] hover:border-[#C97872]/35 hover:shadow-[0_8px_18px_rgba(201,120,114,0.08)]">
+                      <p className="text-[11px] font-semibold text-[#1F1D1B]">Fast</p>
+                      <p className="text-[10px] text-[#706B65] mt-1">Lightweight, responsive builds</p>
                     </div>
-                    <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-center">
-                      <div className="w-9 h-9 mx-auto rounded-full border-2 border-emerald-400 flex items-center justify-center text-emerald-400 font-bold font-mono text-xs mb-1">
-                        100
-                      </div>
-                      <span className="text-[10px] text-slate-400 block font-medium">Accessibility</span>
+                    <div className="group/feature bg-[#F8F5F0] p-3 rounded-xl border border-[#DED5CC] transition-all duration-300 hover:-translate-y-1 hover:bg-[#FFFCF8] hover:border-[#C97872]/35 hover:shadow-[0_8px_18px_rgba(201,120,114,0.08)]">
+                      <p className="text-[11px] font-semibold text-[#1F1D1B]">Search-friendly</p>
+                      <p className="text-[10px] text-[#706B65] mt-1">SEO considered from the start</p>
                     </div>
-                    <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-center">
-                      <div className="w-9 h-9 mx-auto rounded-full border-2 border-emerald-400 flex items-center justify-center text-emerald-400 font-bold font-mono text-xs mb-1">
-                        100
-                      </div>
-                      <span className="text-[10px] text-slate-400 block font-medium">Best Practices</span>
+                    <div className="group/feature bg-[#F8F5F0] p-3 rounded-xl border border-[#DED5CC] transition-all duration-300 hover:-translate-y-1 hover:bg-[#FFFCF8] hover:border-[#C97872]/35 hover:shadow-[0_8px_18px_rgba(201,120,114,0.08)]">
+                      <p className="text-[11px] font-semibold text-[#1F1D1B]">Responsive</p>
+                      <p className="text-[10px] text-[#706B65] mt-1">Designed for every screen</p>
                     </div>
-                    <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-center">
-                      <div className="w-9 h-9 mx-auto rounded-full border-2 border-emerald-400 flex items-center justify-center text-emerald-400 font-bold font-mono text-xs mb-1">
-                        100
-                      </div>
-                      <span className="text-[10px] text-slate-400 block font-medium">SEO Score</span>
+                    <div className="group/feature bg-[#F8F5F0] p-3 rounded-xl border border-[#DED5CC] transition-all duration-300 hover:-translate-y-1 hover:bg-[#FFFCF8] hover:border-[#C97872]/35 hover:shadow-[0_8px_18px_rgba(201,120,114,0.08)]">
+                      <p className="text-[11px] font-semibold text-[#1F1D1B]">Maintainable</p>
+                      <p className="text-[10px] text-[#706B65] mt-1">Clean code you can build on</p>
                     </div>
                   </div>
                 </div>
 
-                {/* Code Snippet */}
-                <div className="bg-slate-950 rounded-xl p-3.5 border border-slate-800 font-mono text-xs text-slate-300 space-y-1.5 overflow-x-auto">
-                  <div className="text-slate-500">// Client Engineering Contract Specification</div>
+                <div className="bg-[#F8F5F0] rounded-xl p-3.5 border border-[#DED5CC] font-mono text-xs text-[#706B65] space-y-1.5 overflow-x-auto">
+                  <div className="text-[#706B65]">// What you can expect</div>
                   <div>
-                    <span className="text-indigo-400">const</span> <span className="text-teal-300">freelanceDeveloper</span> = {'{'}
+                    <span className="text-[#C97872]">const</span> <span className="text-[#B76E6A]">freelanceDeveloper</span> = {'{'}
                   </div>
-                  <div className="pl-4 text-slate-300">
-                    name: <span className="text-emerald-300">'Orion'</span>,
+                  <div className="pl-4 text-[#706B65]">
+                    name: <span className="text-[#C97872]">'Orion'</span>,
                   </div>
-                  <div className="pl-4 text-slate-300">
-                    coreStack: [<span className="text-amber-300">'React 19'</span>, <span className="text-amber-300">'TypeScript'</span>, <span className="text-amber-300">'Tailwind'</span>],
+                  <div className="pl-4 text-[#706B65]">
+                    stack: [<span className="text-[#9A7650]">'React'</span>, <span className="text-[#9A7650]">'TypeScript'</span>, <span className="text-[#9A7650]">'Tailwind'</span>],
                   </div>
-                  <div className="pl-4 text-slate-300">
-                    maxLCP: <span className="text-indigo-300">'0.65s'</span>,
+                  <div className="pl-4 text-[#706B65]">
+                    performance: <span className="text-[#C97872]">'Fast by design'</span>,
                   </div>
-                  <div className="pl-4 text-slate-300">
-                    codeQuality: <span className="text-emerald-300">'100% Type-Safe / Non-AI Slop'</span>,
+                  <div className="pl-4 text-[#706B65]">
+                    approach: <span className="text-[#C97872]">'Clean, maintainable code'</span>,
                   </div>
-                  <div className="pl-4 text-slate-300">
-                    guarantee: <span className="text-emerald-300">'On-Time Delivery or 20% Rebate'</span>
+                  <div className="pl-4 text-[#706B65]">
+                    delivery: <span className="text-[#C97872]">'Clear milestones & communication'</span>
                   </div>
                   <div>{'};'}</div>
                 </div>
 
                 {/* Mini Quick Feature Highlights */}
                 <div className="space-y-2 pt-1">
-                  <div className="flex items-center justify-between text-xs text-slate-300 bg-slate-950/60 px-3 py-2 rounded-lg border border-slate-800/60">
+                  <div className="flex items-center justify-between text-xs text-[#706B65] bg-[#F8F5F0]/60 px-3 py-2 rounded-lg border border-[#DED5CC]/60">
                     <span className="flex items-center gap-2">
-                      <Terminal className="w-3.5 h-3.5 text-indigo-400" />
-                      <span>Clean Architecture & Modular Code</span>
+                      <Terminal className="w-3.5 h-3.5 text-[#C97872]" />
+                      <span>Clean, maintainable code</span>
                     </span>
-                    <span className="text-emerald-400 font-mono font-medium">Included</span>
+                    <span className="text-[#C97872] font-mono font-medium">Included</span>
                   </div>
-                  <div className="flex items-center justify-between text-xs text-slate-300 bg-slate-950/60 px-3 py-2 rounded-lg border border-slate-800/60">
+                  <div className="flex items-center justify-between text-xs text-[#706B65] bg-[#F8F5F0]/60 px-3 py-2 rounded-lg border border-[#DED5CC]/60">
                     <span className="flex items-center gap-2">
-                      <Gauge className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>Mobile First Touch Responsive</span>
+                      <Gauge className="w-3.5 h-3.5 text-[#C97872]" />
+                      <span>Works across phones & desktops</span>
                     </span>
-                    <span className="text-emerald-400 font-mono font-medium">Included</span>
+                    <span className="text-[#C97872] font-mono font-medium">Included</span>
                   </div>
                 </div>
 
                 {/* Direct Action */}
                 <button
                   onClick={onOpenContact}
-                  className="w-full py-3 rounded-xl font-bold text-xs bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700/80 transition-all flex items-center justify-center gap-2"
+                  className="group w-full py-3 rounded-xl font-bold text-xs bg-[#DED5CC] hover:bg-[#1F1D1B] hover:text-[#F8F5F0] text-[#1F1D1B] border border-[#DED5CC]/80 transition-all duration-300 flex items-center justify-center gap-2 hover:-translate-y-0.5 hover:shadow-[0_10px_22px_rgba(31,29,27,0.12)]"
                 >
-                  <ExternalLink className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>Request Full Tech Architecture Review</span>
+                  <ExternalLink className="w-3.5 h-3.5 text-[#C97872] transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  <span>Tell Me About Your Project</span>
                 </button>
 
               </div>

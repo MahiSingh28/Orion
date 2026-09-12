@@ -2,14 +2,14 @@ import { Project, ClientTestimonial, TechSkill, WorkProcessStep, ServicePackage,
 
 export const DEVELOPER_PROFILE = {
   name: 'Orion',
-  title: 'Full-Stack Freelance Developer (React, Node.js & Vite)',
+  title: 'Web Developer • React, Node.js & TypeScript',
   location: 'Bengaluru, India (IST / UTC+5:30)',
   experienceYears: 1,
   projectsCompleted: '15+',
   email: 'startwithorion@gmail.com',
   techStackList: ['React.js', 'Node.js', 'Express.js', 'Vite', 'Tailwind CSS', 'MongoDB', 'WhatsApp API', 'REST APIs', 'TypeScript', 'HTML5/CSS3'],
-  tagline: 'Crafting responsive, high-performance React & Node.js web applications with seamless UX, sub-second load times, and clean code architecture.',
-  demoNotice: 'Notice: Featured projects include real deployed web applications running live on Render, built with React, Vite, Node.js, and Tailwind CSS.',
+  tagline: 'We build thoughtful, responsive websites and web apps that are easy to use, fast to load, and built around real business needs.',
+  demoNotice: 'Featured projects include live websites and web applications built with modern web technology.',
 };
 
 export const PROJECTS_DATA: Project[] = [
@@ -19,9 +19,9 @@ export const PROJECTS_DATA: Project[] = [
     client: 'Agritech & EV Reaper Fleet Solutions',
     clientRole: 'Operations & Fleet Technology',
     category: 'saas',
-    categoryLabel: 'EV Fleet & WhatsApp Booking',
-    description: 'A WhatsApp-based Rental & Fleet Booking System designed to make hiring an EV Reaper as simple as sending a message. Farmers book or purchase agricultural machinery by sharing location, crop type, acreage, and preferred date with automatic operator assignment and instant ETA tracking.',
-    shortDescription: 'Full-stack WhatsApp conversational booking and automated fleet dispatch system for agricultural EV reapers.',
+    categoryLabel: 'Fleet & Booking Web App',
+    description: 'A booking system that makes hiring agricultural machinery as simple as sending a WhatsApp message. Customers share their location, crop type, acreage, and preferred date while the system handles booking details and operator assignment.',
+    shortDescription: 'A WhatsApp booking and fleet management system for agricultural machinery.',
     image: 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=1200&q=80',
     metrics: [
       { label: 'Booking Flow', value: '100% Digital', trend: 'up' },
@@ -65,12 +65,12 @@ export const PROJECTS_DATA: Project[] = [
     clientRole: 'Lead Pediatric Dentist & Clinic Founder',
     category: 'landing',
     categoryLabel: 'Pediatric Healthcare Website',
-    description: 'Tiny Tusk is a modern, child-friendly pediatric dentistry website designed to make dental care feel comfortable, welcoming, and less intimidating for children and their parents with clear service breakdowns and seamless appointment booking.',
-    shortDescription: 'Modern, child-friendly pediatric dentistry web experience with warm interactive UX and appointment scheduling.',
+    description: 'A warm, child-friendly dental website designed to make care feel approachable for children and easy to understand for parents, with clear services and appointment requests.',
+    shortDescription: 'A friendly pediatric dental website with clear information and appointment booking.',
     image: 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1200&q=80',
     metrics: [
       { label: 'Mobile UX Speed', value: '0.4s Instant', trend: 'down' },
-      { label: 'Lighthouse Performance', value: '100/100', trend: 'up' },
+      { label: 'Lighthouse Performance', value: 'Strong', trend: 'up' },
       { label: 'Core Web Vitals', value: 'Pass 100%', trend: 'up' },
       { label: 'Parent Engagement', value: '+75% Inquiries', trend: 'up' }
     ],
@@ -107,14 +107,14 @@ export const PROJECTS_DATA: Project[] = [
     client: 'ReadyRx Media & Brand Agency',
     clientRole: 'Creative Marketing Director & Founder',
     category: 'landing',
-    categoryLabel: 'Creator & Marketing Platform',
-    description: 'A modern digital presence and marketing website designed for a content creator & social media marketing brand. Showcases creative campaigns, growth strategies, brand-building packages, and dynamic portfolio work through a high-converting UI.',
-    shortDescription: 'Conversion-focused digital marketing portfolio and creative agency platform built with React & Tailwind CSS.',
+    categoryLabel: 'Creator & Marketing Website',
+    description: 'A modern marketing website for a content creator and social media brand, built to present services, creative work, and campaigns clearly while guiding visitors toward getting in touch.',
+    shortDescription: 'A polished marketing and portfolio website for a creative brand.',
     image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
     metrics: [
       { label: 'Conversion Impact', value: 'High CTA', trend: 'up' },
       { label: 'Page Load Speed', value: '0.5s Fast', trend: 'down' },
-      { label: 'SEO Lighthouse', value: '100/100', trend: 'up' },
+      { label: 'SEO Lighthouse', value: 'Strong', trend: 'up' },
       { label: 'Mobile Score', value: '100% Ready', trend: 'up' }
     ],
     lighthouseScores: {
@@ -123,7 +123,7 @@ export const PROJECTS_DATA: Project[] = [
       bestPractices: 100,
       seo: 100
     },
-    tags: ['React.js', 'Vite', 'JavaScript', 'HTML5', 'CSS3', 'Tailwind CSS', 'Conversion Strategy', 'Dark Mode UI'],
+    tags: ['React.js', 'Vite', 'JavaScript', 'HTML5', 'CSS3', 'Tailwind CSS', 'Conversion Strategy', 'warm UI'],
     duration: '2 Weeks',
     year: '2026',
     liveUrl: 'https://readyrx.onrender.com',
@@ -134,7 +134,7 @@ export const PROJECTS_DATA: Project[] = [
     deliverables: [
       'Modern content creator portfolio showcasing multi-channel campaigns',
       'Social media marketing, reel production, and brand strategy service showcases',
-      'Creative, visually engaging dark-mode UI with high-contrast accents',
+      'Creative, visually engaging warm UI with high-contrast accents',
       'Responsive desktop and mobile design with smooth micro-interactions',
       'Conversion-focused call-to-action sections with form validation',
       'Clean component-based React architecture with zero script bloat',
@@ -150,41 +150,41 @@ export const PROJECTS_DATA: Project[] = [
 export const ESTIMATOR_PROJECT_TYPES: EstimatorOption[] = [
   {
     id: 'landing-page',
-    title: 'High-Converting Landing Page',
-    description: 'Custom single page website built with HTML, CSS, React, Tailwind CSS, and top-tier SEO.',
-    basePrice: 8000, // ₹8,000 (~$95)
+    title:  'Landing Page',
+    description: 'A focused, responsive website for launching a product, service, campaign, or business online.',
+    basePrice: 8000, // ₹8,000
     baseHours: 15,
     iconName: 'Layout'
   },
   {
     id: 'saas-webapp',
-    title: 'SaaS / Web Application MVP',
-    description: 'Modern React & Node.js web app with authentication, interactive dashboard & REST APIs.',
-    basePrice: 28000, // ₹28,000 (~$335)
+    title:  'Web Application MVP',
+    description: 'A custom web application with the core screens, features, authentication, and backend needed for an MVP.',
+    basePrice: 28000, // ₹28,000
     baseHours: 40,
     iconName: 'Cpu'
   },
   {
     id: 'ecommerce',
-    title: 'Custom Headless E-Commerce',
-    description: 'High performance online store prototype with product catalog, cart & checkout simulator.',
-    basePrice: 22000, // ₹22,000 (~$265)
+    title:  'E-Commerce Website',
+    description: 'An online store with product browsing, cart flow, and a practical checkout experience.',
+    basePrice: 22000, // ₹22,000
     baseHours: 30,
     iconName: 'ShoppingBag'
   },
   {
     id: 'custom-portal',
-    title: 'Client Portal / Admin Tool',
+    title:  'Client Portal / Admin Tool',
     description: 'Admin dashboard, reporting system, document hub or CRM tool built with Node.js & TypeScript.',
-    basePrice: 18000, // ₹18,000 (~$215)
+    basePrice: 18000, // ₹18,000
     baseHours: 25,
     iconName: 'ShieldCheck'
   },
   {
     id: 'speed-refactor',
-    title: 'SEO & Core Web Vitals Audit',
-    description: 'Refactoring legacy sluggish code to hit 95+ PageSpeed & Lighthouse scores.',
-    basePrice: 6000, // ₹6,000 (~$70)
+    title:  'Website Speed & SEO Review',
+    description: 'Practical refactoring to improve PageSpeed, Lighthouse, and real-world loading performance.',
+    basePrice: 6000, // ₹6,000
     baseHours: 10,
     iconName: 'Zap'
   }
@@ -251,7 +251,7 @@ export const TECH_SKILLS: TechSkill[] = [
     experienceYears: 6,
     proficiency: 99,
     icon: 'Code2',
-    description: 'Semantic markup, ARIA accessibility, DOM node reduction & WCAG compliance.'
+    description: 'Semantic markup, accessible structure, clean HTML, and a solid foundation for responsive interfaces.'
   },
   {
     name: 'CSS3 & Tailwind CSS',
@@ -259,7 +259,7 @@ export const TECH_SKILLS: TechSkill[] = [
     experienceYears: 6,
     proficiency: 98,
     icon: 'Palette',
-    description: 'Zero runtime CSS, responsive fluid layouts, custom themes & hardware-accelerated animations.'
+    description: 'Responsive layouts, reusable styles, custom themes, and polished interactions.'
   },
   {
     name: 'JavaScript (ES6+)',
@@ -267,7 +267,7 @@ export const TECH_SKILLS: TechSkill[] = [
     experienceYears: 6,
     proficiency: 98,
     icon: 'FileCode',
-    description: 'Async/await pipelines, Web Workers, DOM optimization, Event loop & closure patterns.'
+    description: 'Modern JavaScript for interactive interfaces, API calls, state, and browser functionality.'
   },
   {
     name: 'TypeScript',
@@ -275,7 +275,7 @@ export const TECH_SKILLS: TechSkill[] = [
     experienceYears: 5,
     proficiency: 96,
     icon: 'ShieldCheck',
-    description: 'Strict type safety, generic types, utility functions & zero runtime type leaks.'
+    description: 'Clear types and maintainable code that makes larger projects easier to work with.'
   },
   {
     name: 'React 19 & Next.js',
@@ -283,7 +283,7 @@ export const TECH_SKILLS: TechSkill[] = [
     experienceYears: 6,
     proficiency: 98,
     icon: 'Code2',
-    description: 'Server components, custom hooks, virtualized rendering & state management.'
+    description: 'Reusable components, hooks, state management, and responsive application interfaces.'
   },
   {
     name: 'Node.js & Express API',
@@ -291,7 +291,7 @@ export const TECH_SKILLS: TechSkill[] = [
     experienceYears: 5,
     proficiency: 94,
     icon: 'Server',
-    description: 'REST APIs, server-side validation, anti-spam middleware, JWT auth & caching.'
+    description: 'REST APIs, validation, authentication, database integration, and practical backend logic.'
   },
   {
     name: 'SEO & Core Web Vitals',
@@ -299,41 +299,41 @@ export const TECH_SKILLS: TechSkill[] = [
     experienceYears: 6,
     proficiency: 99,
     icon: 'Gauge',
-    description: '100/100 Lighthouse scores, JSON-LD schema, open-graph metadata & sub-1s LCP.'
+    description: 'Search-friendly structure, metadata, accessibility, and practical performance improvements.'
   }
 ];
 
 export const WORK_PROCESS_STEPS: WorkProcessStep[] = [
   {
     stepNumber: '01',
-    title: 'Discovery & Tech Spec Brief',
+    title: 'Discovery & Project Plan',
     duration: '1 - 2 Days',
-    description: 'We align on your product goals, target audience, performance requirements, and user journeys. I provide a fixed roadmap with HTML, CSS, React, and Node.js architecture specs.',
-    deliverables: ['Tech Stack Architecture Spec', 'Interactive Prototype Wireframes', 'Fixed INR / USD Scope & Timeline'],
+    description: 'We align on your goals, audience, pages or features, and priorities. We turn that into a clear scope, plan, and timeline.',
+    deliverables: ['Project scope and priorities', 'Initial page or feature plan', 'Clear timeline and estimate'],
     icon: 'Compass'
   },
   {
     stepNumber: '02',
-    title: 'Agile Development Sprints',
+    title: 'Design & Development',
     duration: '1 - 3 Weeks',
-    description: 'I build clean, fully typed modular React & TypeScript components styled with Tailwind CSS, with daily local progress updates and staging links.',
-    deliverables: ['Staging Demo Preview', 'Clean Modular Codebase', 'Weekly Progress Walkthroughs'],
+    description: 'We build the website or app in manageable stages, sharing working previews so you can review the direction and give feedback as we go.',
+    deliverables: ['Working preview', 'Responsive interface and features', 'Regular progress updates'],
     icon: 'Code'
   },
   {
     stepNumber: '03',
-    title: 'SEO & Performance Audit',
+    title: 'Testing & Polish',
     duration: '2 - 3 Days',
-    description: 'Rigorous cross-device testing across Chrome, Safari, mobile & desktop. I audit Core Web Vitals to guarantee 95+ scores for performance & Technical SEO.',
-    deliverables: ['100/100 Lighthouse Audit Report', 'Cross-browser QA Pass Certificate', 'SEO & Accessibility Certification'],
+    description: 'I test the project across common screen sizes and browsers, then fix visual, usability, accessibility, and performance issues before launch.',
+    deliverables: ['Cross-device testing', 'Performance and accessibility checks', 'Final polish and fixes'],
     icon: 'ShieldCheck'
   },
   {
     stepNumber: '04',
-    title: 'Deployment & Support',
+    title: 'Launch & Support',
     duration: 'Ongoing',
-    description: 'Seamless deployment to Cloud Run / Vercel / Netlify. I provide full source code ownership, documentation, and 30 days of free support.',
-    deliverables: ['Production / Staging Setup', 'Full Source Code Repository', '30-Day Post-Launch Support Guarantee'],
+    description: 'Once everything is approved, I help launch the project, hand over the source code, and provide post-launch support.',
+    deliverables: ['Production launch setup', 'Complete source code handover', '30 days of post-launch support'],
     icon: 'Rocket'
   }
 ];
@@ -341,25 +341,25 @@ export const WORK_PROCESS_STEPS: WorkProcessStep[] = [
 export const SERVICE_PACKAGES: ServicePackage[] = [
   {
     id: 'landing',
-    name: 'High-Converting Landing Page',
-    tagline: 'Ideal for launching new products, SaaS waitlists, or marketing campaigns with 100/100 SEO.',
-    startingPrice: 8000, // ₹8,000 (~$95)
+    name:  'Landing Page',
+    tagline: 'Ideal for launching a product, service, campaign, or new business online.',
+    startingPrice: 8000, // ₹8,000
     timeline: '3 - 5 Days',
     idealFor: 'Startups & Founders needing fast conversion & SEO',
     features: [
       'HTML5 + CSS3 + React + Tailwind CSS Stack',
-      '100/100 Lighthouse Performance & SEO Score Guarantee',
+      'Performance-focused, search-friendly build',
       'Interactive Micro-Interactions & Smooth Animations',
       'Contact Form with Anti-Spam Honeypot & CAPTCHA',
       'OpenGraph Metadata & Schema Markup for SEO',
-      '30 Days Free Post-Launch Maintenance'
+      '30 days of free post-launch support'
     ]
   },
   {
     id: 'fullstack',
     name: 'Custom Web App / SaaS MVP',
-    tagline: 'Complete web application with modern React frontend, Node.js API, and TypeScript.',
-    startingPrice: 28000, // ₹28,000 (~$335)
+    tagline: 'For custom tools, dashboards, portals, and early-stage web applications.',
+    startingPrice: 28000, // ₹28,000
     timeline: '2 - 3 Weeks',
     idealFor: 'Founders building B2B SaaS, Client Portals, or Web Apps',
     popular: true,
@@ -374,9 +374,9 @@ export const SERVICE_PACKAGES: ServicePackage[] = [
   },
   {
     id: 'refactor',
-    name: 'SEO & Core Web Vitals Audit',
-    tagline: 'Transform your slow existing web app into a lightning-fast digital asset.',
-    startingPrice: 6000, // ₹6,000 (~$70)
+    name:  'Website Speed & SEO Review',
+    tagline: 'For improving an existing website that feels slow, difficult to use, or hard to find in search.',
+    startingPrice: 6000, // ₹6,000
     timeline: '2 - 3 Days',
     idealFor: 'Businesses losing traffic due to slow load speeds',
     features: [
@@ -384,7 +384,7 @@ export const SERVICE_PACKAGES: ServicePackage[] = [
       'Bundle Size Reduction & Unused JS/CSS Elimination',
       'React Component Re-render Bottleneck Fixes',
       'Image Optimization & Lazy Loading Strategy',
-      'Sub-1 Second Page Loading Guarantee',
+      'Practical speed improvements and recommendations',
       'Detailed Before & After Performance & SEO Report'
     ]
   }
@@ -393,11 +393,11 @@ export const SERVICE_PACKAGES: ServicePackage[] = [
 export const BENCHMARK_COMPARISONS: BenchmarkComparison[] = [
   {
     id: 'rendering-opt',
-    title: 'React 19 & TypeScript Re-render Optimization',
-    standardMetric: '140ms re-render delay (45 re-renders/sec)',
-    optimizedMetric: '2ms re-render delay (1 re-render/sec)',
-    improvement: '70x Faster UI State Sync',
-    description: 'Replacing heavy inline object definitions and un-memoized callbacks with atomic state selector patterns.',
+    title: 'React Rendering Optimization',
+    standardMetric: '140ms re-render delay',
+    optimizedMetric: '2ms re-render delay',
+    improvement: 'Faster UI updates',
+    description: 'A practical example of reducing unnecessary calculations and re-renders in a React interface.',
     unoptimizedCode: `// Standard Slow JS Pattern
 function ProductList({ items }) {
   const expensiveList = items.filter(i => i.active)
@@ -432,11 +432,11 @@ const ProductList = memo(function ProductList({ items }: Props) {
   },
   {
     id: 'virtualized-list',
-    title: 'DOM Node Virtualization for Large Datasets',
-    standardMetric: '15,000 DOM Nodes (Heavy Lag on Scroll)',
-    optimizedMetric: '18 Active DOM Nodes (Constant 60 FPS)',
-    improvement: '99.8% DOM Footprint Reduction',
-    description: 'Only rendering elements currently visible in the user viewport, maintaining silky 60 FPS scrolling even with 100,000+ items.',
+    title: 'Handling Large Lists Smoothly',
+    standardMetric: '15,000 DOM nodes',
+    optimizedMetric: 'Only visible rows rendered',
+    improvement: 'Much lighter scrolling',
+    description: 'A simple windowing approach that keeps large lists responsive by rendering only the rows currently needed.',
     unoptimizedCode: `// Standard Unoptimized List (Renders 10,000 DOM elements)
 function UnoptimizedTable({ rows }) {
   return (

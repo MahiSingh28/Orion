@@ -3,25 +3,63 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { ProjectShowcase } from './components/ProjectShowcase';
-import { InteractiveCaseStudyModal } from './components/InteractiveCaseStudyModal';
-import { ProjectEstimator } from './components/ProjectEstimator';
-import { CodeEfficiencyBenchmark } from './components/CodeEfficiencyBenchmark';
-import { ServicesAndPricing } from './components/ServicesAndPricing';
-import { WorkProcess } from './components/WorkProcess';
-import { ContactSection } from './components/ContactSection';
-import { InstantAiAssistant } from './components/InstantAiAssistant';
-import { Footer } from './components/Footer';
 import { Project } from './types';
+
+// Heavy/below-the-fold sections are split into separate chunks.
+const ProjectEstimator = lazy(() =>
+  import('./components/ProjectEstimator').then((m) => ({
+    default: m.ProjectEstimator,
+  }))
+);
+
+const ServicesAndPricing = lazy(() =>
+  import('./components/ServicesAndPricing').then((m) => ({
+    default: m.ServicesAndPricing,
+  }))
+);
+
+const WorkProcess = lazy(() =>
+  import('./components/WorkProcess').then((m) => ({
+    default: m.WorkProcess,
+  }))
+);
+
+const ContactSection = lazy(() =>
+  import('./components/ContactSection').then((m) => ({
+    default: m.ContactSection,
+  }))
+);
+
+const InteractiveCaseStudyModal = lazy(() =>
+  import('./components/InteractiveCaseStudyModal').then((m) => ({
+    default: m.InteractiveCaseStudyModal,
+  }))
+);
+
+const InstantAiAssistant = lazy(() =>
+  import('./components/InstantAiAssistant').then((m) => ({
+    default: m.InstantAiAssistant,
+  }))
+);
+
+const Footer = lazy(() =>
+  import('./components/Footer').then((m) => ({
+    default: m.Footer,
+  }))
+);
+
+function DeferredFallback() {
+  return <div className="min-h-[8rem] bg-[#F8F5F0]" aria-hidden="true" />;
+}
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<string>('works');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  
-  // State for pre-filling contact form from Estimator
+
   const [estimatorBrief, setEstimatorBrief] = useState<{
     projectType: string;
     selectedFeatures: string[];
@@ -30,20 +68,58 @@ export default function App() {
     estimatedHours: number;
   } | null>(null);
 
+  const [hasScrolled, setHasScrolled] = useState(false);
+  const [shouldLoadDeferredSections, setShouldLoadDeferredSections] = useState(false);
+  const [shouldLoadAssistant, setShouldLoadAssistant] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setHasScrolled(window.scrollY > 24);
+
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Let Header/Hero/Projects paint before loading the heavier lower sections.
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setShouldLoadDeferredSections(true);
+    }, 150);
+
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  // The assistant is independent, so don't make it compete with first paint.
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setShouldLoadAssistant(true);
+    }, 800);
+
+    return () => window.clearTimeout(timer);
+  }, []);
+
   const scrollToSection = (id: string) => {
     setActiveTab(id);
-    const elem = document.getElementById(id);
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth' });
+
+    const element = document.getElementById(id);
+
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
     }
   };
 
   const handleOpenEstimator = () => {
-    scrollToSection('estimator');
+    setShouldLoadDeferredSections(true);
+    window.setTimeout(() => scrollToSection('estimator'), 0);
   };
 
   const handleOpenContact = () => {
-    scrollToSection('contact');
+    setShouldLoadDeferredSections(true);
+    window.setTimeout(() => scrollToSection('contact'), 0);
   };
 
   const handleSendBriefToContact = (briefSummary: {
@@ -51,31 +127,63 @@ export default function App() {
     selectedFeatures: string[];
     priceRange: string;
     timeline: string;
-    estimatedHours: number;
+    estimatedHours?: number;
   }) => {
-    setEstimatorBrief(briefSummary);
-    scrollToSection('contact');
+    setEstimatorBrief({
+      ...briefSummary,
+      estimatedHours: briefSummary.estimatedHours ?? 0,
+    });
+
+    setShouldLoadDeferredSections(true);
+
+    window.setTimeout(() => scrollToSection('contact'), 0);
   };
 
-  const handleSelectPackage = (packageName: string, startingPrice: number) => {
+  const handleSelectPackage = (
+    packageName: string,
+    startingPrice: number
+  ) => {
     setEstimatorBrief({
       projectType: packageName,
-      selectedFeatures: ['Sprint Architecture', 'QA & 100/100 PageSpeed', '30 Days Maintenance'],
-      priceRange: `From $${startingPrice.toLocaleString()}`,
-      timeline: 'Standard Sprint',
-      estimatedHours: 30
+      selectedFeatures: [
+        'Project planning & architecture',
+        'Testing & quality checks',
+        'Post-launch support',
+      ],
+      priceRange: `Starting at ₹${startingPrice.toLocaleString('en-IN')}`,
+      timeline: 'Based on project scope',
+      estimatedHours: 30,
     });
-    scrollToSection('contact');
+
+    setShouldLoadDeferredSections(true);
+
+    window.setTimeout(() => scrollToSection('contact'), 0);
   };
 
-  const handleSelectCategoryForEstimator = (projectCategory: string) => {
-    scrollToSection('estimator');
+  const handleSelectCategoryForEstimator = (_projectCategory: string) => {
+    setShouldLoadDeferredSections(true);
+    window.setTimeout(() => scrollToSection('estimator'), 0);
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans antialiased selection:bg-emerald-500 selection:text-slate-950">
-      
-      {/* Header Bar */}
+    <div
+      className={`
+        min-h-screen
+        bg-[#F8F5F0]
+        text-[#1F1D1B]
+        font-sans
+        antialiased
+        selection:bg-[#C97872]
+        selection:text-white
+        transition-colors duration-300
+        ${hasScrolled ? 'is-scrolled' : ''}
+      `}
+    >
+      <div
+        className="pointer-events-none fixed left-0 right-0 top-0 z-[70] h-px bg-gradient-to-r from-transparent via-[#C97872]/60 to-transparent"
+        aria-hidden="true"
+      />
+
       <Header
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -83,59 +191,64 @@ export default function App() {
         onOpenContact={handleOpenContact}
       />
 
-      {/* Main Content Sections */}
       <main>
-        {/* Hero Section */}
         <Hero
           onExploreWorks={() => scrollToSection('works')}
           onOpenEstimator={handleOpenEstimator}
           onOpenContact={handleOpenContact}
         />
 
-        {/* Selected Case Studies */}
         <ProjectShowcase
           onSelectProject={(project) => setSelectedProject(project)}
           onOpenEstimator={handleOpenEstimator}
         />
 
-        {/* Project Scope & Cost Estimator */}
-        <ProjectEstimator
-          onSendBriefToContact={handleSendBriefToContact}
-        />
+        {shouldLoadDeferredSections ? (
+          <Suspense fallback={<DeferredFallback />}>
+            <ProjectEstimator
+              onSendBriefToContact={handleSendBriefToContact}
+            />
 
-        {/* Code Efficiency & Performance Benchmarks */}
-        <CodeEfficiencyBenchmark />
+            <ServicesAndPricing
+              onSelectPackage={handleSelectPackage}
+            />
 
-        {/* Fixed Services & Rates */}
-        <ServicesAndPricing
-          onSelectPackage={handleSelectPackage}
-        />
+            <WorkProcess />
 
-        {/* Predictable Work Process */}
-        <WorkProcess />
-
-        {/* Start A Project Sprint / Contact */}
-        <ContactSection
-          initialBrief={estimatorBrief}
-        />
+            <ContactSection initialBrief={estimatorBrief} />
+          </Suspense>
+        ) : (
+          <DeferredFallback />
+        )}
       </main>
 
-      {/* Interactive Case Study Modal */}
-      <InteractiveCaseStudyModal
-        project={selectedProject}
-        onClose={() => setSelectedProject(null)}
-        onSelectForEstimator={handleSelectCategoryForEstimator}
-      />
+      {selectedProject && (
+        <Suspense fallback={null}>
+          <InteractiveCaseStudyModal
+            project={selectedProject}
+            onClose={() => setSelectedProject(null)}
+            onSelectForEstimator={handleSelectCategoryForEstimator}
+          />
+        </Suspense>
+      )}
 
-      {/* Instant Flash-Lite AI Assistant Floating Widget */}
-      <InstantAiAssistant />
+      {shouldLoadAssistant && (
+        <Suspense fallback={null}>
+          <InstantAiAssistant />
+        </Suspense>
+      )}
 
-      {/* Footer */}
-      <Footer
-        onScrollToTop={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        onNavigate={scrollToSection}
-      />
-
+      <Suspense fallback={null}>
+        <Footer
+          onScrollToTop={() =>
+            window.scrollTo({
+              top: 0,
+              behavior: 'smooth',
+            })
+          }
+          onNavigate={scrollToSection}
+        />
+      </Suspense>
     </div>
   );
 }
