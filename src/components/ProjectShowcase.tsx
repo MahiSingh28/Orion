@@ -421,7 +421,7 @@ export const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({
             </h3>
 
             <p className="text-[#DED5CC] text-xs sm:text-sm max-w-xl">
-              Tell me what you’re building and I’ll help you work out the right scope, timeline, and next steps.
+              Tell Us what you’re building and We'll keep you work out the right scope, timeline, and next steps.
             </p>
 
           </div>

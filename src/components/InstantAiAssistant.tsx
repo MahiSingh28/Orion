@@ -51,7 +51,7 @@ export const InstantAiAssistant: React.FC = () => {
 
       const replyText =
         data.reply ||
-        'I’m available for new website and web app projects. Tell me what you’re looking to build, or use the contact form to get started.';
+        'I’m available for new website and web app projects. Tell Us what you’re looking to build, or use the contact form to get started.';
 
       setMessages((prev) => [
         ...prev,
@@ -71,7 +71,7 @@ export const InstantAiAssistant: React.FC = () => {
         ...prev,
         {
           sender: 'assistant',
-          text: 'We could not connect right now. You can still explore Our work or use the contact form to tell me about your project.',
+          text: 'We could not connect right now. You can still explore Our work or use the contact form to Tell Usabout your project.',
           time: new Date().toLocaleTimeString([], {
             hour: '2-digit',
             minute: '2-digit',

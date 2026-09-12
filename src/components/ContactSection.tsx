@@ -407,7 +407,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
             Let's Build Your Website or Web App
           </h2>
           <p className="text-[#706B65] text-sm sm:text-base">
-            Tell me what you want to build, choose a convenient time, and I’ll get back to you with the next steps.
+            Tell Us what you want to build, choose a convenient time, and We’ll get back to you with the next steps.
           </p>
         </div>
 
@@ -882,7 +882,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 <div className="flex items-center justify-between border-b border-[#DED5CC] pb-4">
                   <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#706B65] uppercase">
                     <FileText className="w-4 h-4 text-[#C97872]" />
-                    <span>Tell Me About Your Project</span>
+                    <span>Tell UsAbout Your Project</span>
                   </div>
                   <div className="flex items-center gap-1.5 text-[11px] font-mono text-[#C97872] bg-[#FFFCF8] px-2.5 py-1 rounded-full border border-[#DED5CC]">
                     <ShieldCheck className="w-3.5 h-3.5 text-[#C97872]" />
@@ -1057,7 +1057,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-mono font-bold text-[#706B65] flex items-center gap-1.5">
                       <MessageSquare className="w-3.5 h-3.5 text-[#706B65]" />
-                      <span>Tell me about the project *</span>
+                      <span>Tell Usabout the project *</span>
                     </label>
                     <div className="flex items-center gap-2">
                       <button
@@ -1084,7 +1084,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   </div>
                   <textarea
                     rows={4}
-                    placeholder="Tell me what you want to build, what it should do, and any deadline or budget you have..."
+                    placeholder="Tell Us what you want to build, what it should do, and any deadline or budget you have..."
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     className={`w-full bg-[#F8F5F0] text-[#1F1D1B] placeholder-[#9B857B] text-xs p-3.5 rounded-xl border transition-all resize-none ${

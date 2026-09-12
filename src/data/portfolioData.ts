@@ -324,7 +324,7 @@ export const WORK_PROCESS_STEPS: WorkProcessStep[] = [
     stepNumber: '03',
     title: 'Testing & Polish',
     duration: '2 - 3 Days',
-    description: 'I test the project across common screen sizes and browsers, then fix visual, usability, accessibility, and performance issues before launch.',
+    description: 'We test the project across common screen sizes and browsers, then fix visual, usability, accessibility, and performance issues before launch.',
     deliverables: ['Cross-device testing', 'Performance and accessibility checks', 'Final polish and fixes'],
     icon: 'ShieldCheck'
   },
@@ -332,7 +332,7 @@ export const WORK_PROCESS_STEPS: WorkProcessStep[] = [
     stepNumber: '04',
     title: 'Launch & Support',
     duration: 'Ongoing',
-    description: 'Once everything is approved, I help launch the project, hand over the source code, and provide post-launch support.',
+    description: 'Once everything is approved, We help launch the project, hand over the source code, and provide post-launch support.',
     deliverables: ['Production launch setup', 'Complete source code handover', '30 days of post-launch support'],
     icon: 'Rocket'
   }

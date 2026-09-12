@@ -260,7 +260,7 @@ export const Hero: React.FC<HeroProps> = ({
                   className="group w-full py-3 rounded-xl font-bold text-xs bg-[#DED5CC] hover:bg-[#1F1D1B] hover:text-[#F8F5F0] text-[#1F1D1B] border border-[#DED5CC]/80 transition-all duration-300 flex items-center justify-center gap-2 hover:-translate-y-0.5 hover:shadow-[0_10px_22px_rgba(31,29,27,0.12)]"
                 >
                   <ExternalLink className="w-3.5 h-3.5 text-[#C97872] transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                  <span>Tell Me About Your Project</span>
+                  <span>Tell UsAbout Your Project</span>
                 </button>
 
               </div>

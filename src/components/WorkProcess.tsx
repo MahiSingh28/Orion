@@ -523,7 +523,7 @@ export const WorkProcess: React.FC = () => {
           </h2>
 
           <p className="text-sm text-[#706B65] sm:text-base">
-            I keep the process simple and transparent. You know what happens next,
+            We keep the process simple and transparent. You know what happens next,
             see progress along the way, and have regular opportunities to review the work.
           </p>
         </div>
