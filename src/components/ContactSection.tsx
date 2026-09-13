@@ -682,7 +682,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   <div className="space-y-1">
                     <h3 className="text-2xl font-black text-[#1F1D1B]">Project Details Received</h3>
                     <p className="text-xs sm:text-sm text-[#706B65]">
-                      Thanks, <strong className="text-[#C97872]">{formData.name}</strong>. Wereceived your project details.
+                      Thanks, <strong className="text-[#C97872]">{formData.name}</strong>. We received  your project details.
                     </p>
                   </div>
 
