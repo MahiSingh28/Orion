@@ -1,0 +1,154 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+@import "tailwindcss";
+
+@layer base {
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    background-color: #F8F5F0;
+    color: #1F1D1B;
+    letter-spacing: -0.011em;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  code, kbd, samp, pre {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  button, a, [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button:focus-visible,
+  a:focus-visible,
+  [role="button"]:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: 2px solid #C97872;
+    outline-offset: 3px;
+  }
+}
+
+/* =========================================
+   PREMIUM INTERACTION FOUNDATION
+   ========================================= */
+
+@media (prefers-reduced-motion: no-preference) {
+  button, a, [role="button"] {
+    transition:
+      transform 220ms cubic-bezier(.22, 1, .36, 1),
+      box-shadow 220ms cubic-bezier(.22, 1, .36, 1),
+      background-color 180ms ease,
+      border-color 180ms ease,
+      color 180ms ease;
+  }
+
+  button:hover, a:hover, [role="button"]:hover {
+    transform: translateY(-2px);
+  }
+
+  button:active, a:active, [role="button"]:active {
+    transform: translateY(0) scale(.985);
+  }
+
+  .interactive-surface {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .interactive-surface::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    background: radial-gradient(
+      circle 180px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      rgba(201, 120, 114, .12),
+      transparent 68%
+    );
+    opacity: 0;
+    transition: opacity 280ms ease;
+  }
+
+  .interactive-surface:hover::after {
+    opacity: 1;
+  }
+
+  .interactive-image {
+    transition: transform 700ms cubic-bezier(.22, 1, .36, 1);
+  }
+
+  .interactive-surface:hover .interactive-image {
+    transform: scale(1.045);
+  }
+
+  .interactive-link {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+  }
+
+  .interactive-link svg {
+    transition: transform 220ms cubic-bezier(.22, 1, .36, 1);
+  }
+
+  .interactive-link:hover svg {
+    transform: translateX(4px);
+  }
+
+  .reveal-up {
+    animation: reveal-up 650ms cubic-bezier(.22, 1, .36, 1) both;
+  }
+
+  @keyframes reveal-up {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+/* =========================================
+   WARM TAUPE SCROLLBAR
+   ========================================= */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track { background: #DED5CC; }
+
+::-webkit-scrollbar-thumb {
+  background: #A89E96;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover { background: #706B65; }
+
+* {
+  scrollbar-color: #A89E96 #DED5CC;
+  scrollbar-width: thin;
+}
+
+/* =========================================
+   SOFT SELECTION
+   ========================================= */
+
+::selection {
+  background-color: #C97872;
+  color: #FFFFFF;
+}
