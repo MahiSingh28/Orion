@@ -36,7 +36,7 @@ app.use((req, res, next) => {
   res.setHeader("X-Frame-Options", "SAMEORIGIN");
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
   res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
-  res.setHeader("Cross-Origin-Resource-Policy", "same-site");
+  res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
   res.setHeader("X-DNS-Prefetch-Control", "off");
 
   if (process.env.NODE_ENV === "production") {
@@ -77,6 +77,43 @@ const configuredOrigins = new Set(
     .map((value) => String(value || "").trim().replace(/\/$/, ""))
     .filter(Boolean)
 );
+
+// -------------------------------------------------------------
+// CORS — Allow the deployed Vercel frontend to call the Render API
+// -------------------------------------------------------------
+
+const corsAllowedOrigins = new Set([
+  ...configuredOrigins,
+  "https://orion28.vercel.app",
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+]);
+
+app.use((req, res, next) => {
+  const origin = String(req.headers.origin || "").replace(/\/$/, "");
+
+  if (origin && corsAllowedOrigins.has(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Vary", "Origin");
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader(
+      "Access-Control-Allow-Methods",
+      "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+    );
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization"
+    );
+  }
+
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+
+  next();
+});
 
 function isAllowedBrowserOrigin(req: express.Request): boolean {
   const origin = req.headers.origin;
