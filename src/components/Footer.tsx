@@ -62,10 +62,10 @@ export const Footer: React.FC<FooterProps> = ({
             </a>
 
             <a
-              href="tel:+91123456789"
+              href="tel:+918103793800"
               className="mt-3 block text-base text-[#1F1D1B] transition-colors duration-300 hover:text-[#B06A64]"
             >
-              +91 12345 6789
+              +91 81037 93800
             </a>
 
             <p className="mt-3 text-base text-[#1F1D1B]">
